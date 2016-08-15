@@ -1,0 +1,48 @@
+{
+	"name" : "stinger-soft/excel-creator",
+	"type" : "library",
+	"description" : "Creates Excel export by defining data bindings",
+	"keywords" : [
+		"Excel",
+		"PHP",
+		"Data binding"
+	],
+	"homepage" : "http://www.stinger-soft.net",
+	"authors" : [{
+			"name" : "Florian Meyer",
+			"email" : "florian.meyer@stinger-soft.net",
+			"role" : "Developer"
+		}
+	],
+	"autoload" : {
+		"psr-4" : {
+			"StingerSoft\\ExcelCreator\\" : "src/StingerSoft/ExcelCreator"
+		},
+		"exclude-from-classmap" : [
+			"/tests/"
+		]
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"StingerSoft\\ExcelCreator\\" : "tests/StingerSoft/ExcelCreator"
+		}
+	},
+	"license" : "Apache-2.0",
+	"require" : {
+		"php" : ">=5.5",
+		"doctrine/common" : ">=2.5.0",
+		"phpoffice/phpexcel" : "^1.8|^1.9",
+		"symfony/property-access" : "^2.8|^3.0",
+		"symfony/translation" : "^2.8|^3.0"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "~4.1|~5.0",
+		"satooshi/php-coveralls" : "~0.7.1"
+	},
+	"extra" : {
+		"branch-alias" : {
+			"dev-master" : "0.1.x-dev",
+			"dev-develop" : "1.0.x-dev"
+		}
+	}
+}
