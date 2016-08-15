@@ -1,0 +1,37 @@
+<?php
+
+/*
+ * This file is part of the Stinger Excel Creator package.
+ *
+ * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+ * (c) Florian Meyer <florian.meyer@stinger-soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+namespace StingerSoft\ExcelCreator;
+
+use Symfony\Component\Translation\TranslatorInterface;
+
+class HelperTest extends \PHPUnit_Framework_TestCase {
+
+	use Helper;
+	
+	public function testDecodeHtmlEntity() {
+		$this->assertEquals('Laphroaig', $this->decodeHtmlEntity('La&shy;phroaig'));
+		$this->assertEquals('Laphroaig', $this->decodeHtmlEntity('Laphroaig'));
+	}
+	
+	public function testTranslate() {
+		$this->assertEquals('Laphroaig', $this->translate('Laphroaig', false));
+		
+		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(array('trans'))->getMockForAbstractClass();
+		$translator->expects($this->exactly(2))->method('trans')->willReturn('translated');
+		$this->translator = $translator;
+		
+		$this->assertEquals('translated', $this->translate('Laphroaig', null));
+		
+		$this->assertEquals('translated', $this->translate('Laphroaig', 'domain'));
+	}
+
+}
