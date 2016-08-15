@@ -38,7 +38,7 @@ class ConfiguredExcel {
 	/**
 	 * Default contructor
 	 */
-	public function __construct(TranslatorInterface $translator) {
+	public function __construct(TranslatorInterface $translator = null) {
 		$this->phpExcel = new \PHPExcel();
 		$this->sheets = new ArrayCollection();
 		$this->translator = $translator;
@@ -94,7 +94,7 @@ class ConfiguredExcel {
 
 	/**
 	 * Get the author of this excel file
-	 * 
+	 *
 	 * @return string The author of this excel file
 	 */
 	public function getCreator() {
@@ -103,12 +103,29 @@ class ConfiguredExcel {
 
 	/**
 	 * Sets the author of this excel file
-	 * 
+	 *
 	 * @param string $creator
 	 *        	The author of this excel file
 	 */
 	public function setCreator($creator) {
 		$this->phpExcel->getProperties()->setCreator($creator);
+	}
+
+	/**
+	 *
+	 * @return string The company this excel file is created by
+	 */
+	public function getCompany() {
+		return $this->phpExcel->getProperties()->getCompany();
+	}
+
+	/**
+	 *
+	 * @param string $company
+	 *        	The company this excel file is created by
+	 */
+	public function setCompany($company) {
+		return $this->phpExcel->getProperties()->setCompany($company);
 	}
 
 	/**
