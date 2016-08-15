@@ -361,7 +361,7 @@ class ConfiguredSheet {
 	/**
 	 * Returns the underlying PHP Excel Sheet object
 	 *
-	 * @return PHPExcel_Worksheet
+	 * @return \PHPExcel_Worksheet
 	 */
 	public function getSheet() {
 		return $this->sheet;

@@ -30,8 +30,21 @@ class HelperTest extends \PHPUnit_Framework_TestCase {
 		$this->translator = $translator;
 		
 		$this->assertEquals('translated', $this->translate('Laphroaig', null));
-		
 		$this->assertEquals('translated', $this->translate('Laphroaig', 'domain'));
+	}
+	
+	public function testSetSheetTitle() {
+		$excel = new ConfiguredExcel();
+		$sheet = $excel->addSheet('test')->getSheet();
+		
+		$this->setSheetTitle($sheet, 'TestTitle');
+		$this->assertEquals('TestTitle', $sheet->getTitle());
+		
+		$this->setSheetTitle($sheet, '0123456789012345678901234567890123456789');
+		$this->assertEquals('0123456789012345678901234567890', $sheet->getTitle());
+		
+		$this->setSheetTitle($sheet, 'Test:::::');
+		$this->assertEquals('Test_____', $sheet->getTitle());
 	}
 
 }
