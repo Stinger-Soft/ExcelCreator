@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Translation\TranslatorInterface;
+use StingerSoft\PhpCommons\String\Utils;
 
 /**
  * Abstraction layer to represent a single worksheet inside an excel file
@@ -85,6 +86,13 @@ class ConfiguredSheet {
 	 * @var \PHPExcel_Worksheet
 	 */
 	protected $sheet = null;
+
+	/**
+	 * Creates some extra data for each data item object
+	 *
+	 * @var callable
+	 */
+	protected $extraData = null;
 
 	/**
 	 * Default constructor
@@ -166,10 +174,14 @@ class ConfiguredSheet {
 	protected function renderDataRows($startColumn = 0, $headerRow = 1) {
 		$row = $headerRow + 1;
 		foreach($this->data as $item) {
+			$extraData = array();
+			if($this->extraData && is_callable($this->extraData)) {
+				$extraData = call_user_func_array($this->extraData, array($item));
+			}
 			$column = $startColumn;
 			foreach($this->bindings as $binding) {
 				$cell = $this->sheet->getCellByColumnAndRow($column, $row);
-				$this->renderDataCell($cell, $item, $binding);
+				$this->renderDataCell($cell, $item, $binding, $extraData);
 				$column++;
 			}
 			$row++;
@@ -184,13 +196,13 @@ class ConfiguredSheet {
 	 * @param object|array $item        	
 	 * @param ColumnBinding $binding        	
 	 */
-	protected function renderDataCell(\PHPExcel_Cell &$cell, $item, ColumnBinding $binding) {
-		$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding());
-		$styling = $this->getPropertyFromObject($item, $binding, $binding->getDataStyling(), null);
+	protected function renderDataCell(\PHPExcel_Cell &$cell, $item, ColumnBinding $binding, array $extraData) {
+		$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding(), '', $extraData);
+		$styling = $this->getPropertyFromObject($item, $binding, $binding->getDataStyling(), null, $extraData);
 		
 		if(!$styling) {
-			$fontColor = $this->getPropertyFromObject($item, $binding, $binding->getDataFontColor(), $this->defaultDataFontColor);
-			$bgColor = $this->getPropertyFromObject($item, $binding, $binding->getDataBackgroundColor(), $this->defaultDataBackgroundColor);
+			$fontColor = $this->getPropertyFromObject($item, $binding, $binding->getDataFontColor(), $this->defaultDataFontColor, $extraData);
+			$bgColor = $this->getPropertyFromObject($item, $binding, $binding->getDataBackgroundColor(), $this->defaultDataBackgroundColor, $extraData);
 			if($fontColor || $bgColor) {
 				$cell->getStyle()->applyFromArray($this->getDefaultDataStyling($fontColor, $bgColor));
 			}
@@ -200,6 +212,9 @@ class ConfiguredSheet {
 		
 		if($binding->getDecodeHtml()) {
 			$value = $this->decodeHtmlEntity($value);
+		}
+		if($binding->getFormatter() && is_callable($binding->getFormatter())){
+			$value = call_user_func($binding->getFormatter(), $value);
 		}
 		$cell->setValue($value);
 	}
@@ -216,19 +231,28 @@ class ConfiguredSheet {
 	 *        	The default value if no property was fetched
 	 * @return mixed The value of the requested property
 	 */
-	protected function getPropertyFromObject($item, ColumnBinding $binding, $path, $default = '') {
+	protected function getPropertyFromObject($item, ColumnBinding $binding, $path, $default = '', array $extraData) {
 		if(!$path === null)
 			return $default;
 		if(is_string($path)) {
 			try {
-				return $this->accessor->getValue($item, $path);
+				$obj = $item;
+				if(Utils::startsWith($path, '!')) {
+					$pathSegs = explode('.', $path);
+					$extraDataId = substr($pathSegs[0], 1);
+					if(!isset($extraData[$extraDataId])) return $default;
+					$obj = $extraData[$extraDataId];
+					$path = implode('.', array_slice($pathSegs, 1));
+				}
+				return $this->accessor->getValue($obj, $path);
 			} catch(\Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException $ute) {
 				return $default;
 			}
 		} else if(is_callable($path)) {
 			return call_user_func_array($path, array(
 				$binding,
-				$item 
+				$item,
+				$extraData
 			));
 		}
 		return $default;
@@ -299,7 +323,7 @@ class ConfiguredSheet {
 
 	/**
 	 * Returns the default styling for headers cells
-	 * 
+	 *
 	 * @return string[]
 	 */
 	protected function getDefaultHeaderStyling() {
@@ -320,5 +344,14 @@ class ConfiguredSheet {
 				'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER 
 			) 
 		);
+	}
+
+	/**
+	 *
+	 * @param callable $extraData
+	 */
+	public function setExtraData($extraData) {
+		$this->extraData = $extraData;
+		return $this;
 	}
 }

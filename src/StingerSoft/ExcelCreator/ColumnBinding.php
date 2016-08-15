@@ -90,6 +90,13 @@ class ColumnBinding {
 	protected $outline = null;
 
 	/**
+	 * Callable to format the result
+	 *
+	 * @var callable
+	 */
+	protected $formatter;
+
+	/**
 	 * Default contructor
 	 *
 	 * @param string $label        	
@@ -97,7 +104,7 @@ class ColumnBinding {
 	 */
 	public function __construct($label = null, $binding = null) {
 		$this->label = $label;
-		$this->binding = binding;
+		$this->binding = $binding;
 	}
 
 	/**
@@ -335,7 +342,7 @@ class ColumnBinding {
 	/**
 	 * Returns a PHPExcel compatible styling array.
 	 * This value will override the dataFontColor and dataBackgroundColor property
-	 * 
+	 *
 	 * @return array A PHPExcel compatible styling array. This value will override the dataFontColor and dataBackgroundColor property
 	 */
 	public function getDataStyling() {
@@ -345,12 +352,33 @@ class ColumnBinding {
 	/**
 	 * Sets a PHPExcel compatible styling array.
 	 * This value will override the dataFontColor and dataBackgroundColor property
-	 * 
+	 *
 	 * @param array $dataStyling
 	 *        	A PHPExcel compatible styling array. This value will override the dataFontColor and dataBackgroundColor property
 	 */
 	public function setDataStyling(array $dataStyling) {
 		$this->dataStyling = $dataStyling;
+		return $this;
+	}
+
+	/**
+	 * Returns a callable to format the result
+	 *
+	 * @return callable
+	 */
+	public function getFormatter() {
+		return $this->formatter;
+	}
+
+	/**
+	 * Set the callable to format the result
+	 *
+	 * @param callable $formatter
+	 *        	The callable to format the result
+	 * @return \StingerSoft\ExcelCreator\ColumnBinding
+	 */
+	public function setFormatter($formatter) {
+		$this->formatter = $formatter;
 		return $this;
 	}
 }

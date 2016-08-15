@@ -12,6 +12,7 @@
 namespace StingerSoft\ExcelCreator;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Abstraction class to represent a single excel file
@@ -37,9 +38,10 @@ class ConfiguredExcel {
 	/**
 	 * Default contructor
 	 */
-	public function __construct() {
+	public function __construct(TranslatorInterface $translator) {
 		$this->phpExcel = new \PHPExcel();
 		$this->sheets = new ArrayCollection();
+		$this->translator = $translator;
 	}
 
 	/**
@@ -47,7 +49,7 @@ class ConfiguredExcel {
 	 *
 	 * @param string $title
 	 *        	The title of the new sheet
-	 * @return \StingerSoft\ExcelExporter\ConfiguredSheet
+	 * @return \StingerSoft\ExcelCreator\ConfiguredSheet
 	 */
 	public function addSheet($title) {
 		$excelSheet = null;
@@ -57,7 +59,7 @@ class ConfiguredExcel {
 			$excelSheet = $this->phpExcel->createSheet($this->sheets->count());
 		}
 		$this->setSheetTitle($excelSheet, $title);
-		$sheet = new ConfiguredSheet($this, $excelSheet);
+		$sheet = new ConfiguredSheet($this, $excelSheet, $this->translator);
 		$this->sheets->add($sheet);
 		return $sheet;
 	}
