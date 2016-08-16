@@ -343,7 +343,7 @@ class ColumnBinding {
 	 * Returns a PHPExcel compatible styling array.
 	 * This value will override the dataFontColor and dataBackgroundColor property
 	 *
-	 * @return array A PHPExcel compatible styling array. This value will override the dataFontColor and dataBackgroundColor property
+	 * @return array|callable A PHPExcel compatible styling array. This value will override the dataFontColor and dataBackgroundColor property
 	 */
 	public function getDataStyling() {
 		return $this->dataStyling;
@@ -353,10 +353,10 @@ class ColumnBinding {
 	 * Sets a PHPExcel compatible styling array.
 	 * This value will override the dataFontColor and dataBackgroundColor property
 	 *
-	 * @param array $dataStyling
+	 * @param array|callable $dataStyling
 	 *        	A PHPExcel compatible styling array. This value will override the dataFontColor and dataBackgroundColor property
 	 */
-	public function setDataStyling(array $dataStyling) {
+	public function setDataStyling($dataStyling) {
 		$this->dataStyling = $dataStyling;
 		return $this;
 	}
