@@ -212,11 +212,12 @@ class ConfiguredSheet {
 			$cell->getStyle()->applyFromArray($styling);
 		}
 		
-		if($binding->getDecodeHtml()) {
-			$value = $this->decodeHtmlEntity($value);
-		}
 		if($binding->getFormatter() && is_callable($binding->getFormatter())) {
 			$value = call_user_func($binding->getFormatter(), $value);
+		}
+		
+		if($binding->getDecodeHtml()) {
+			$value = $this->decodeHtmlEntity($value);
 		}
 		$cell->setValue($value);
 	}
@@ -239,6 +240,9 @@ class ConfiguredSheet {
 		if(is_string($path)) {
 			try {
 				$obj = $item;
+				if(Utils::startsWith($path, '$')) {
+					return $path;
+				}
 				if(Utils::startsWith($path, '!')) {
 					$pathSegs = explode('.', $path);
 					$extraDataId = substr($pathSegs[0], 1);

@@ -20,6 +20,7 @@ abstract class TranslationFormatter {
 
 	public static function createTranslationFormatter(TranslatorInterface $translator, $domain) {
 		return function ($value) use ($translator, $domain) {
+			if(!$value) return '';
 			return $translator->trans($value, array(), $domain);
 		};
 	}
