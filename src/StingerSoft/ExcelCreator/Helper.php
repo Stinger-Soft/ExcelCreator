@@ -37,7 +37,7 @@ trait Helper {
 	 *
 	 * @param string $text        	
 	 */
-	public function decodeHtmlEntity($text) {
+	protected function decodeHtmlEntity($text) {
 		$text = html_entity_decode($text);
 		$text = str_replace('­', '', $text);
 		return $text;
@@ -50,7 +50,7 @@ trait Helper {
 	 * @param string $domain        	
 	 * @return string
 	 */
-	public function translate($key, $domain) {
+	protected function translate($key, $domain) {
 		if($domain === false || $this->getTranslator() === null)
 			return $key;
 		if($domain === null)
@@ -64,7 +64,7 @@ trait Helper {
 	 * @param \PHPExcel_Worksheet $sheet        	
 	 * @param string $title        	
 	 */
-	public function setSheetTitle(\PHPExcel_Worksheet $sheet, $title) {
+	protected function setSheetTitle(\PHPExcel_Worksheet $sheet, $title) {
 		$sheet->setTitle(\substr(\str_replace($sheet::getInvalidCharacters(), '_', $title), 0, 31));
 	}
 }

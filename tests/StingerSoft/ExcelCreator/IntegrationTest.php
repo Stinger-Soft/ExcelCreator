@@ -18,6 +18,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 		
 		$excel->setTitle('TestCase');
 		$excel->setCreator('Me');
+		$excel->setCompany('StingerSoft');
 		
 		$sheet1 = $excel->addSheet('Test Sheet1');
 		
@@ -27,6 +28,11 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 			$binding->setLabelTranslationDomain(false);
 			$binding->setBinding('[' . $i . ']'); //
 			$binding->setColumnWidth('auto');
+			$binding->setWrapText(true);
+			$binding->setOutline(1);
+			$binding->setFormatter(function ($value) {
+				return strtoupper($value);
+			});
 			$sheet1->addColumnBinding($binding);
 		}
 		$sheet1->setData($this->getArrayData());

@@ -176,7 +176,9 @@ class ConfiguredSheet {
 		foreach($this->data as $item) {
 			$extraData = array();
 			if($this->extraData && is_callable($this->extraData)) {
-				$extraData = call_user_func_array($this->extraData, array($item));
+				$extraData = call_user_func_array($this->extraData, array(
+					$item 
+				));
 			}
 			$column = $startColumn;
 			foreach($this->bindings as $binding) {
@@ -213,7 +215,7 @@ class ConfiguredSheet {
 		if($binding->getDecodeHtml()) {
 			$value = $this->decodeHtmlEntity($value);
 		}
-		if($binding->getFormatter() && is_callable($binding->getFormatter())){
+		if($binding->getFormatter() && is_callable($binding->getFormatter())) {
 			$value = call_user_func($binding->getFormatter(), $value);
 		}
 		$cell->setValue($value);
@@ -240,7 +242,8 @@ class ConfiguredSheet {
 				if(Utils::startsWith($path, '!')) {
 					$pathSegs = explode('.', $path);
 					$extraDataId = substr($pathSegs[0], 1);
-					if(!isset($extraData[$extraDataId])) return $default;
+					if(!isset($extraData[$extraDataId]))
+						return $default;
 					$obj = $extraData[$extraDataId];
 					$path = implode('.', array_slice($pathSegs, 1));
 				}
@@ -252,7 +255,7 @@ class ConfiguredSheet {
 			return call_user_func_array($path, array(
 				$binding,
 				$item,
-				$extraData
+				$extraData 
 			));
 		}
 		return $default;
@@ -348,10 +351,19 @@ class ConfiguredSheet {
 
 	/**
 	 *
-	 * @param callable $extraData
+	 * @param callable $extraData        	
 	 */
 	public function setExtraData($extraData) {
 		$this->extraData = $extraData;
 		return $this;
+	}
+
+	/**
+	 * Returns the underlying PHP Excel Sheet object
+	 *
+	 * @return \PHPExcel_Worksheet
+	 */
+	public function getSheet() {
+		return $this->sheet;
 	}
 }
