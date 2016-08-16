@@ -32,6 +32,13 @@ class ConfiguredSheet {
 	protected $bindings = null;
 
 	/**
+	 * The default font family for all cells
+	 *
+	 * @var string
+	 */
+	protected $defaultFontFamily = 'Arial';
+
+	/**
 	 * The default background color for the table headers
 	 *
 	 * @var string
@@ -44,6 +51,13 @@ class ConfiguredSheet {
 	 * @var string
 	 */
 	protected $defaultHeaderFontColor = 'FFFFFF';
+
+	/**
+	 * The default font size for the table headers
+	 *
+	 * @var integer
+	 */
+	protected $defaultHeaderFontSize = 8;
 
 	/**
 	 * The default font color for the data cells
@@ -60,6 +74,13 @@ class ConfiguredSheet {
 	protected $defaultDataBackgroundColor = null;
 
 	/**
+	 * The default font size for the data cells
+	 *
+	 * @var integer
+	 */
+	protected $defaultDataFontSize = 8;
+
+	/**
 	 * Property accessor to handle property path bindings
 	 *
 	 * @var PropertyAccessor
@@ -69,7 +90,7 @@ class ConfiguredSheet {
 	/**
 	 * The data bound to this sheet
 	 *
-	 * @var array
+	 * @var array|Traversable
 	 */
 	protected $data;
 
@@ -93,6 +114,8 @@ class ConfiguredSheet {
 	 * @var callable
 	 */
 	protected $extraData = null;
+
+	protected $groupByBinding = null;
 
 	/**
 	 * Default constructor
@@ -124,9 +147,9 @@ class ConfiguredSheet {
 	/**
 	 * Sets an array of data to bind against this sheet
 	 *
-	 * @param array $data        	
+	 * @param array|Traversable $data        	
 	 */
-	public function setData(array $data) {
+	public function setData($data) {
 		$this->data = $data;
 	}
 
@@ -173,7 +196,9 @@ class ConfiguredSheet {
 	 */
 	protected function renderDataRows($startColumn = 0, $headerRow = 1) {
 		$row = $headerRow + 1;
+		$lastGroupingValue = null;
 		foreach($this->data as $item) {
+			$this->sheet->getStyleByColumnAndRow($startColumn, $row, $startColumn + count($this->bindings) - 1, $row)->applyFromArray($this->getDefaultDataStyling($this->defaultDataFontColor, $this->defaultDataBackgroundColor));
 			$extraData = array();
 			if($this->extraData && is_callable($this->extraData)) {
 				$extraData = call_user_func_array($this->extraData, array(
@@ -183,7 +208,15 @@ class ConfiguredSheet {
 			$column = $startColumn;
 			foreach($this->bindings as $binding) {
 				$cell = $this->sheet->getCellByColumnAndRow($column, $row);
-				$this->renderDataCell($cell, $item, $binding, $extraData);
+				$value = $this->renderDataCell($cell, $item, $binding, $extraData);
+				if($this->groupByBinding == $binding) {
+					if($value == $lastGroupingValue) {
+						$this->sheet->getRowDimension($cell->getRow())->setOutlineLevel(1);
+					} else {
+						$lastGroupingValue = $value;
+					}
+				}
+				
 				$column++;
 			}
 			$row++;
@@ -220,6 +253,7 @@ class ConfiguredSheet {
 			$value = $this->decodeHtmlEntity($value);
 		}
 		$cell->setValue($value);
+		return $value;
 	}
 
 	/**
@@ -241,7 +275,7 @@ class ConfiguredSheet {
 			try {
 				$obj = $item;
 				if(Utils::startsWith($path, '$')) {
-					return $path;
+					return substr($path, 1);
 				}
 				if(Utils::startsWith($path, '!')) {
 					$pathSegs = explode('.', $path);
@@ -309,14 +343,15 @@ class ConfiguredSheet {
 	 * @return string[]
 	 */
 	protected function getDefaultDataStyling($fontColor, $bgColor) {
-		$styling = array();
+		$styling = array(
+			'font' => array(
+				'name' => $this->defaultFontFamily,
+				'size' => $this->defaultDataFontSize 
+			) 
+		);
 		if($fontColor) {
-			$styling = array(
-				'font' => array(
-					'color' => array(
-						'rgb' => $fontColor 
-					) 
-				) 
+			$styling['font']['color'] = array(
+				'rgb' => $fontColor 
 			);
 		}
 		if($bgColor) {
@@ -338,7 +373,8 @@ class ConfiguredSheet {
 	protected function getDefaultHeaderStyling() {
 		return array(
 			'font' => array(
-				'size' => 10,
+				'name' => $this->defaultFontFamily,
+				'size' => $this->defaultHeaderFontSize,
 				'bold' => true 
 			),
 			'fill' => array(
@@ -371,5 +407,26 @@ class ConfiguredSheet {
 	 */
 	public function getSheet() {
 		return $this->sheet;
+	}
+
+	/**
+	 * Gets the binding to group rows with the same value generate by the binding
+	 *
+	 * @return ColumnBinding|null The binding to group rows with the same value generate by the binding
+	 */
+	public function getGroupByBinding() {
+		return $this->groupByBinding;
+	}
+
+	/**
+	 * Sets the binding to group rows with the same value generate by the binding
+	 *
+	 * @param ColumnBinding|null $groupByBinding
+	 *        	The binding to group rows with the same value generate by the binding
+	 * @return \StingerSoft\ExcelCreator\ConfiguredSheet
+	 */
+	public function setGroupByBinding($groupByBinding) {
+		$this->groupByBinding = $groupByBinding;
+		return $this;
 	}
 }
