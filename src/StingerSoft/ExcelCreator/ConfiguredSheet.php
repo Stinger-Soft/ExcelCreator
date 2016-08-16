@@ -257,6 +257,8 @@ class ConfiguredSheet {
 				$item,
 				$extraData 
 			));
+		} else if(is_array($path)) {
+			return $path;
 		}
 		return $default;
 	}
