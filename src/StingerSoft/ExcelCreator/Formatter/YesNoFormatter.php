@@ -15,7 +15,7 @@ abstract class YesNoFormatter {
 	
 	public static function createYesNoFormatter($yesLabel, $noLabel) {
 		return function($value) use ($yesLabel, $noLabel) {
-			return $value == true ? $yesLabel : $noLabel;
+			return filter_var($value, FILTER_VALIDATE_BOOLEAN) === true ? $yesLabel : $noLabel;
 		};
 	}
 }

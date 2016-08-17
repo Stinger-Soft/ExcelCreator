@@ -178,9 +178,13 @@ class ConfiguredSheet {
 	protected function renderHeaderRow($startColumn = 0, $headerRow = 1) {
 		$this->sheet->getStyle(\PHPExcel_Cell::stringFromColumnIndex($startColumn) . $headerRow . ':' . \PHPExcel_Cell::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
 		foreach($this->bindings as $binding) {
-			$this->sheet->setCellValueByColumnAndRow($startColumn, $headerRow, $this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
+			$cell = $this->sheet->getCellByColumnAndRow($startColumn, $headerRow);
+			$cell->setValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
 			if($binding->getOutline()) {
 				$this->sheet->getColumnDimensionByColumn($startColumn)->setOutlineLevel($binding->getOutline());
+			}
+			if($binding->getHeaderFontColor() || $binding->getHeaderBackgroundColor()) {
+				$cell->getStyle()->applyFromArray($this->getDefaultHeaderStyling($binding->getHeaderFontColor(), $binding->getHeaderBackgroundColor()));
 			}
 			$startColumn++;
 		}
@@ -370,17 +374,20 @@ class ConfiguredSheet {
 	 *
 	 * @return string[]
 	 */
-	protected function getDefaultHeaderStyling() {
+	protected function getDefaultHeaderStyling($fontColor = null, $bgColor = null) {
 		return array(
 			'font' => array(
 				'name' => $this->defaultFontFamily,
 				'size' => $this->defaultHeaderFontSize,
+				'color'=> array(
+					'rgb' => $fontColor ?: $this->defaultHeaderFontColor,
+				),
 				'bold' => true 
 			),
 			'fill' => array(
 				'type' => \PHPExcel_Style_Fill::FILL_SOLID,
 				'color' => array(
-					'rgb' => $this->defaultHeaderBackgroundColor 
+					'rgb' => $bgColor ?: $this->defaultHeaderBackgroundColor 
 				) 
 			),
 			'alignment' => array(

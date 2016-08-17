@@ -30,6 +30,10 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 			$binding->setColumnWidth('auto');
 			$binding->setWrapText(true);
 			$binding->setOutline(1);
+			$binding->setHeaderBackgroundColor('000000');
+			$binding->setHeaderFontColor('FFFFFF');
+			$binding->setDataFontColor('$FFFFFF');
+			$binding->setDataBackgroundColor('$FAFAFA');
 			$binding->setFormatter(function ($value) {
 				return strtoupper($value);
 			});
