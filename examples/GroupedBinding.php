@@ -1,11 +1,3 @@
-# Outlined Binding
-
-The following example extends the [Simple Binding](SimpleBinding.md) example by adding more information (i.e. columns) to the excel file and groups them by specifying an outline for each additional binding.
-
-Please keep in mind that Excel currently supports outline up to level 6. Higher levels are ignored.
-
-## Code
-```php
 <?php
 
 use StingerSoft\ExcelCreator\ConfiguredExcel;
@@ -44,27 +36,39 @@ $streetBinding = new ColumnBinding();
 $streetBinding->setLabel('Address');
 $streetBinding->setBinding('address');
 $streetBinding->setColumnWidth('auto');
-$streetBinding->setOutline(1);
 $sheet1->addColumnBinding($streetBinding);
 
 $cityBinding = new ColumnBinding();
 $cityBinding->setLabel('City');
 $cityBinding->setBinding('city');
 $cityBinding->setColumnWidth('auto');
-$cityBinding->setOutline(1);
 $sheet1->addColumnBinding($cityBinding);
 
 $zipBinding = new ColumnBinding();
 $zipBinding->setLabel('Zipcode');
 $zipBinding->setBinding('zipcode');
 $zipBinding->setColumnWidth('auto');
-$zipBinding->setOutline(1);
 $sheet1->addColumnBinding($zipBinding);
+
+//Group results by zip code
+$sheet1->setGroupByBinding($zipBinding);
 
 $guests = array();
 
 $person = new Person('Peter Mobb', 'peter@mobbtrix.de');
 $person->setAddress('Musterstraße 1');
+$person->setCity('Bremen');
+$person->setZipCode(28357);
+$guests[] = $person;
+
+$person = new Person('Oliver Kotte', 'oliver.kotte@stinger-soft.net');
+$person->setAddress('Musterstraße 2');
+$person->setCity('Bremen');
+$person->setZipCode(28357);
+$guests[] = $person;
+
+$person = new Person('Florian Meyer', 'florian.meyer@stinger-soft.net');
+$person->setAddress('Musterstraße 3');
 $person->setCity('Bremen');
 $person->setZipCode(28357);
 $guests[] = $person;
@@ -78,10 +82,4 @@ $guests[] = $person;
 $sheet1->setData($guests);
 $sheet1->applyData();
 
-\PHPExcel_IOFactory::createWriter($excel->getPhpExcel(), 'Excel2007')->save(__DIR__.'/outline_binding.xlsx');
-
-```
-
-## Result
-
-![OutlinedBinding Result](images/outlined_binding.png "OutlinedBinding Result")
+\PHPExcel_IOFactory::createWriter($excel->getPhpExcel(), 'Excel2007')->save(__DIR__.'/grouped_binding.xlsx');

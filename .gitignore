@@ -11,6 +11,7 @@
 /app/logs/*
 !app/cache/.gitkeep
 !app/logs/.gitkeep
+/examples/*.xlsx
 /build/
 /vendor/
 /bin/

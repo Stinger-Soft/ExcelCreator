@@ -12,3 +12,4 @@ composer require stinger-soft/excel-creator
 
 * [Simple Binding](docs/SimpleBinding.md)
 * [Horizontal outline](docs/OutlinedBinding.md)
+* [Group rows](docs/GroupedBinding.md)
