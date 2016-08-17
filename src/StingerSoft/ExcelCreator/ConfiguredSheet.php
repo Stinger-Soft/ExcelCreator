@@ -50,7 +50,7 @@ class ConfiguredSheet {
 	 *
 	 * @var string
 	 */
-	protected $defaultHeaderFontColor = 'FFFFFF';
+	protected $defaultHeaderFontColor = '000000';
 
 	/**
 	 * The default font size for the table headers
