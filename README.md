@@ -11,3 +11,4 @@ composer require stinger-soft/excel-creator
 ## Usage
 
 * [Simple Binding](docs/SimpleBinding.md)
+* [Horizontal outline](docs/OutlinedBinding.md)

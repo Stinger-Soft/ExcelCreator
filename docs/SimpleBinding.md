@@ -1,5 +1,7 @@
 # Simple Binding
 
+The following example shows you how to create a very simple excel file, listing names and email addresses by binding the properties of an array of people.
+
 ## Code
 ```php
 <?php
