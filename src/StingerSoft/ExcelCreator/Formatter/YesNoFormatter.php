@@ -13,7 +13,7 @@ namespace StingerSoft\ExcelCreator\Formatter;
 
 abstract class YesNoFormatter {
 	
-	public static function createTranslationFormatter($yesLabel, $noLabel) {
+	public static function createYesNoFormatter($yesLabel, $noLabel) {
 		return function($value) use ($yesLabel, $noLabel) {
 			return $value == true ? $yesLabel : $noLabel;
 		};
