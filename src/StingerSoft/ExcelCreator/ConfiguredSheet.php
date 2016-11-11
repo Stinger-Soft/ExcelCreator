@@ -256,7 +256,16 @@ class ConfiguredSheet {
 		if($binding->getDecodeHtml()) {
 			$value = $this->decodeHtmlEntity($value);
 		}
+		$url = $binding->getLinkUrl();
+		if($url !== null) {
+			if(is_callable($url)) {
+				$url = call_user_func_array($url, array($binding, $item, $extraData));
+			}
+		}
 		$cell->setValue($value);
+		if($url != null) {
+			$cell->getHyperlink()->setUrl($url);
+		}
 		return $value;
 	}
 

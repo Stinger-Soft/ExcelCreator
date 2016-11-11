@@ -59,8 +59,8 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 			$binding->setBinding(function (ColumnBinding $bind, $item) {
 				return 'Bound via callable';
 			});
-			$binding->setLinkUrl(function(ColumnBinding $bind, $item) {
-				return 'http://www.google.com?q=' . $item;
+			$binding->setLinkUrl(function(ColumnBinding $bind, $item) use ($i) {
+				return 'http://www.google.com?q=' . $item[$i];
 			});
 			$sheet1->addColumnBinding($binding);
 		}
