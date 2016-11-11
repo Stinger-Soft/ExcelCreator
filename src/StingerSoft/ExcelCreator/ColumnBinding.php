@@ -2,13 +2,13 @@
 
 /*
  * This file is part of the Stinger Excel Creator package.
- *
- * (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
- * (c) Florian Meyer <florian.meyer@stinger-soft.net>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+*
+* (c) Oliver Kotte <oliver.kotte@stinger-soft.net>
+* (c) Florian Meyer <florian.meyer@stinger-soft.net>
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 namespace StingerSoft\ExcelCreator;
 
 /**
@@ -96,15 +96,40 @@ class ColumnBinding {
 	 */
 	protected $formatter;
 
+	protected $linkUrl = null;
+
 	/**
 	 * Default contructor
 	 *
-	 * @param string $label        	
-	 * @param string|callable $binding        	
+	 * @param string $label
+	 * @param string|callable $binding
 	 */
 	public function __construct($label = null, $binding = null) {
 		$this->label = $label;
 		$this->binding = $binding;
+	}
+
+	/**
+	 * Set the URL of the hyperlink or a callable for generating the URL for a hyperlink 
+	 * for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 * 
+	 * @param string|callable $url the URL of the hyperlink or a callable for generating the URL for a hyperlink 
+	 * for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 * @return \StingerSoft\ExcelCreator\ColumnBinding
+	 */
+	public function setLinkUrl($url) {
+		$this->linkUrl = $url;
+
+		return $this;
+	}
+
+	/**
+	 * Get the URL to point a hyperlink  for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 * 
+	 * @return string|callable the URL to point a hyprelink for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 */
+	public function getLinkUrl() {
+		return $this->linkUrl;
 	}
 
 	/**
@@ -142,7 +167,7 @@ class ColumnBinding {
 	 * Set the translation domain to translate the given label.
 	 * If set to false no translation will be applied.
 	 *
-	 * @param string $labelTranslationDomain        	
+	 * @param string $labelTranslationDomain
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setLabelTranslationDomain($labelTranslationDomain) {
@@ -183,7 +208,7 @@ class ColumnBinding {
 	/**
 	 * Set to true if the binded value may contain HTML characters.
 	 *
-	 * @param boolean $decodeHtml        	
+	 * @param boolean $decodeHtml
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setDecodeHtml($decodeHtml) {
@@ -203,7 +228,7 @@ class ColumnBinding {
 	/**
 	 * Set to true to allow multilined values
 	 *
-	 * @param boolean $wrapText        	
+	 * @param boolean $wrapText
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setWrapText($wrapText) {
