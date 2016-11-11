@@ -27,6 +27,7 @@ class ConfiguredSheetTest extends \PHPUnit_Framework_TestCase {
 		$simpleBinding = new ColumnBinding();
 		$simpleBinding->setBinding('[1]');
 		$simpleBinding->setLabel('simpleBinding');
+		$simpleBinding->setLinkUrl('http://www.google.de');
 		$sheet->addColumnBinding($simpleBinding);
 		
 		$sheet->applyData();
