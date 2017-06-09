@@ -14,7 +14,7 @@ namespace StingerSoft\ExcelCreator\Formatter;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Creates a deleage to translate binding results
+ * Creates a delegate to translate binding results
  */
 abstract class TranslationFormatter {
 

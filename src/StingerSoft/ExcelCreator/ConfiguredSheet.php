@@ -90,7 +90,7 @@ class ConfiguredSheet {
 	/**
 	 * The data bound to this sheet
 	 *
-	 * @var array|Traversable
+	 * @var array|\Traversable
 	 */
 	protected $data;
 
@@ -147,7 +147,7 @@ class ConfiguredSheet {
 	/**
 	 * Sets an array of data to bind against this sheet
 	 *
-	 * @param array|Traversable $data        	
+	 * @param array|\Traversable $data
 	 */
 	public function setData($data) {
 		$this->data = $data;

@@ -131,7 +131,7 @@ class ConfiguredExcel {
 	/**
 	 * Returns the underyling PHPExcel object
 	 *
-	 * @return PHPExcel The underyling PHPExcel object
+	 * @return \PHPExcel The underyling PHPExcel object
 	 */
 	public function getPhpExcel() {
 		return $this->phpExcel;
