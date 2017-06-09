@@ -145,6 +145,18 @@ class ConfiguredSheet {
 	}
 
 	/**
+	 * Return the index or key for the given column binding.
+	 *
+	 * @param ColumnBinding $binding the column binding to get the index for
+	 * @return bool|int|mixed|string the key for needle if it is found in the array, false otherwise.
+	 *                               If needle is found in haystack more than once, the first matching key is returned. To return
+	 *                               the keys for all matching values,  use array_keys with the optional search_value parameter instead.
+	 */
+	public function getIndexForBinding(ColumnBinding $binding) {
+		return $this->bindings->indexOf($binding);
+	}
+
+	/**
 	 * Sets an array of data to bind against this sheet
 	 *
 	 * @param array|\Traversable $data
