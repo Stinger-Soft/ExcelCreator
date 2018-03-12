@@ -11,6 +11,7 @@
  */
 namespace StingerSoft\ExcelCreator;
 
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -61,10 +62,10 @@ trait Helper {
 	/**
 	 * Sets the title (escaped and shortened) on the given sheet.
 	 *
-	 * @param \PHPExcel_Worksheet $sheet        	
+	 * @param Worksheet $sheet
 	 * @param string $title        	
 	 */
-	protected function setSheetTitle(\PHPExcel_Worksheet $sheet, $title) {
+	protected function setSheetTitle(Worksheet $sheet, $title) {
 		$sheet->setTitle(\substr(\str_replace($sheet::getInvalidCharacters(), '_', $title), 0, 31));
 	}
 }
