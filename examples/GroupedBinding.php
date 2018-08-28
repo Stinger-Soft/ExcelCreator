@@ -82,4 +82,4 @@ $guests[] = $person;
 $sheet1->setData($guests);
 $sheet1->applyData();
 
-\PHPExcel_IOFactory::createWriter($excel->getPhpExcel(), 'Excel2007')->save(__DIR__.'/grouped_binding.xlsx');
+\PhpOffice\PhpSpreadsheet\IOFactory::createWriter($excel->getPhpExcel(), 'Xlsx')->save(__DIR__.'/grouped_binding.xlsx');

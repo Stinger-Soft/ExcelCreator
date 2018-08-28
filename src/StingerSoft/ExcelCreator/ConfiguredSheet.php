@@ -178,7 +178,7 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	public function applyData($startColumn = 0, $headerRow = 1) {
+	public function applyData($startColumn = 1, $headerRow = 1) {
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow);
 		$this->applyTableStyling($startColumn, $headerRow);
@@ -192,7 +192,7 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	protected function renderHeaderRow($startColumn = 0, $headerRow = 1) {
+	protected function renderHeaderRow($startColumn = 1, $headerRow = 1) {
 		$this->sheet->getStyle(Coordinate::stringFromColumnIndex($startColumn) . $headerRow . ':' . Coordinate::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
 		foreach($this->bindings as $binding) {
 			$cell = $this->sheet->getCellByColumnAndRow($startColumn, $headerRow);
@@ -215,7 +215,7 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	protected function renderDataRows($startColumn = 0, $headerRow = 1) {
+	protected function renderDataRows($startColumn = 1, $headerRow = 1) {
 		$row = $headerRow + 1;
 		$lastGroupingValue = null;
 		foreach($this->data as $item) {
@@ -386,7 +386,7 @@ class ConfiguredSheet {
 		}
 		if($bgColor) {
 			$styling['fill'] = array(
-				'type' => Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array(
 					'rgb' => $bgColor 
 				) 
@@ -411,7 +411,7 @@ class ConfiguredSheet {
 				'bold' => true 
 			),
 			'fill' => array(
-				'type' => Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array(
 					'rgb' => $bgColor ?: $this->defaultHeaderBackgroundColor 
 				) 
