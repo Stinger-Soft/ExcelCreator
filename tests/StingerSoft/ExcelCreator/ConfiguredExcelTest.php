@@ -11,7 +11,9 @@
  */
 namespace StingerSoft\ExcelCreator;
 
-class ConfiguredExcelTest extends \PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class ConfiguredExcelTest extends TestCase {
 
 	public function testSetters() {
 		$excel = new ConfiguredExcel();

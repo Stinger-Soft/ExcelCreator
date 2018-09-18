@@ -38,4 +38,4 @@ $guests[] = new Person('Peter und Uschi', 'peter_uschi@meppen.de');
 $sheet1->setData($guests);
 $sheet1->applyData();
 
-\PHPExcel_IOFactory::createWriter($excel->getPhpExcel(), 'Excel2007')->save(__DIR__.'/simple_binding.xlsx');
+\PhpOffice\PhpSpreadsheet\IOFactory::createWriter($excel->getPhpExcel(), 'Xlsx')->save(__DIR__.'/simple_binding.xlsx');

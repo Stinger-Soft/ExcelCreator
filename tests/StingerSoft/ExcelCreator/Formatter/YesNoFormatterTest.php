@@ -11,7 +11,9 @@
  */
 namespace StingerSoft\ExcelCreator\Formatter;
 
-class YesNoFormatterTest extends \PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class YesNoFormatterTest extends TestCase {
 
 	public function testCreateTranslationFormatter() {
 		$pirateYesNoformatter = YesNoFormatter::createYesNoFormatter('Arrrr!', 'Avast!');

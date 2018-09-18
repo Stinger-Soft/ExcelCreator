@@ -12,6 +12,11 @@
 namespace StingerSoft\ExcelCreator;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -104,7 +109,7 @@ class ConfiguredSheet {
 	/**
 	 * The PHP worksheet attached to this object
 	 *
-	 * @var \PHPExcel_Worksheet
+	 * @var Worksheet
 	 */
 	protected $sheet = null;
 
@@ -122,12 +127,12 @@ class ConfiguredSheet {
 	 *
 	 * @param ConfiguredExcel $excel
 	 *        	The parent excel file
-	 * @param \PHPExcel_Worksheet $sheet
+	 * @param Worksheet $sheet
 	 *        	The underlying PHP Excel worksheet
 	 * @param TranslatorInterface $translator
 	 *        	Translator to support translation of bindings
 	 */
-	public function __construct(ConfiguredExcel $excel, \PHPExcel_Worksheet $sheet, TranslatorInterface $translator = null) {
+	public function __construct(ConfiguredExcel $excel, Worksheet $sheet, TranslatorInterface $translator = null) {
 		$this->bindings = new ArrayCollection();
 		$this->accessor = PropertyAccess::createPropertyAccessorBuilder()->disableExceptionOnInvalidIndex()->getPropertyAccessor();
 		$this->excel = $excel;
@@ -173,7 +178,7 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	public function applyData($startColumn = 0, $headerRow = 1) {
+	public function applyData($startColumn = 1, $headerRow = 1) {
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow);
 		$this->applyTableStyling($startColumn, $headerRow);
@@ -187,8 +192,8 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	protected function renderHeaderRow($startColumn = 0, $headerRow = 1) {
-		$this->sheet->getStyle(\PHPExcel_Cell::stringFromColumnIndex($startColumn) . $headerRow . ':' . \PHPExcel_Cell::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
+	protected function renderHeaderRow($startColumn = 1, $headerRow = 1) {
+		$this->sheet->getStyle(Coordinate::stringFromColumnIndex($startColumn) . $headerRow . ':' . Coordinate::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
 		foreach($this->bindings as $binding) {
 			$cell = $this->sheet->getCellByColumnAndRow($startColumn, $headerRow);
 			$cell->setValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
@@ -210,7 +215,7 @@ class ConfiguredSheet {
 	 * @param int $headerRow
 	 *        	The row to start rendering
 	 */
-	protected function renderDataRows($startColumn = 0, $headerRow = 1) {
+	protected function renderDataRows($startColumn = 1, $headerRow = 1) {
 		$row = $headerRow + 1;
 		$lastGroupingValue = null;
 		foreach($this->data as $item) {
@@ -243,11 +248,11 @@ class ConfiguredSheet {
 	 *
 	 * Renders a single data cell
 	 *
-	 * @param \PHPExcel_Cell $cell        	
+	 * @param Cell $cell
 	 * @param object|array $item        	
 	 * @param ColumnBinding $binding        	
 	 */
-	protected function renderDataCell(\PHPExcel_Cell &$cell, $item, ColumnBinding $binding, array $extraData) {
+	protected function renderDataCell(Cell $cell, $item, ColumnBinding $binding, array $extraData) {
 		$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding(), '', $extraData);
 		$styling = $this->getPropertyFromObject($item, $binding, $binding->getDataStyling(), null, $extraData);
 		
@@ -339,7 +344,7 @@ class ConfiguredSheet {
 		// Header filterable
 		$lastColumn = $this->sheet->getHighestDataColumn();
 		$lastRow = $this->sheet->getHighestDataRow();
-		$this->sheet->setAutoFilter(\PHPExcel_Cell::stringFromColumnIndex($startColumn) . $headerRow . ':' . $lastColumn . $lastRow);
+		$this->sheet->setAutoFilter(Coordinate::stringFromColumnIndex($startColumn) . $headerRow . ':' . $lastColumn . $lastRow);
 		
 		//
 		$this->sheet->setShowSummaryBelow(false);
@@ -381,7 +386,7 @@ class ConfiguredSheet {
 		}
 		if($bgColor) {
 			$styling['fill'] = array(
-				'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array(
 					'rgb' => $bgColor 
 				) 
@@ -406,15 +411,15 @@ class ConfiguredSheet {
 				'bold' => true 
 			),
 			'fill' => array(
-				'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array(
 					'rgb' => $bgColor ?: $this->defaultHeaderBackgroundColor 
 				) 
 			),
 			'alignment' => array(
 				'wrap' => true,
-				'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-				'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER 
+				'horizontal' => Alignment::HORIZONTAL_CENTER,
+				'vertical' => Alignment::VERTICAL_CENTER
 			) 
 		);
 	}
@@ -431,7 +436,7 @@ class ConfiguredSheet {
 	/**
 	 * Returns the underlying PHP Excel Sheet object
 	 *
-	 * @return \PHPExcel_Worksheet
+	 * @return Worksheet
 	 */
 	public function getSheet() {
 		return $this->sheet;

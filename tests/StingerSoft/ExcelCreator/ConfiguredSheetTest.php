@@ -11,9 +11,10 @@
  */
 namespace StingerSoft\ExcelCreator;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class ConfiguredSheetTest extends \PHPUnit_Framework_TestCase {
+class ConfiguredSheetTest extends TestCase {
 
 	public function testSetters() {
 		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(array('trans'))->getMockForAbstractClass();

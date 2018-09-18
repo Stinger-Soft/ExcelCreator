@@ -12,6 +12,7 @@
 namespace StingerSoft\ExcelCreator;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -31,7 +32,7 @@ class ConfiguredExcel {
 	/**
 	 * The underyling excel file of PHPExcel
 	 *
-	 * @var \PHPExcel
+	 * @var Spreadsheet
 	 */
 	protected $phpExcel;
 
@@ -39,7 +40,7 @@ class ConfiguredExcel {
 	 * Default contructor
 	 */
 	public function __construct(TranslatorInterface $translator = null) {
-		$this->phpExcel = new \PHPExcel();
+		$this->phpExcel = new Spreadsheet();
 		$this->sheets = new ArrayCollection();
 		$this->translator = $translator;
 	}
@@ -131,7 +132,7 @@ class ConfiguredExcel {
 	/**
 	 * Returns the underyling PHPExcel object
 	 *
-	 * @return \PHPExcel The underyling PHPExcel object
+	 * @return Spreadsheet The underyling PHPExcel object
 	 */
 	public function getPhpExcel() {
 		return $this->phpExcel;
