@@ -11,7 +11,9 @@
  */
 namespace StingerSoft\ExcelCreator;
 
-class IntegrationTest extends \PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class IntegrationTest extends TestCase {
 
 	public function testSimpleCycle() {
 		$excel = new ConfiguredExcel();
@@ -41,6 +43,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 		}
 		$sheet1->setData($this->getArrayData());
 		$sheet1->applyData();
+		$this->assertTrue(true);
 	}
 
 	public function testBindingFunctionCycle() {
@@ -66,6 +69,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase {
 		}
 		$sheet1->setData($this->getArrayData());
 		$sheet1->applyData();
+		$this->assertTrue(true);
 	}
 
 	protected function getArrayData($count = 10, $columns = 10) {
