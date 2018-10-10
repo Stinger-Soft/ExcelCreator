@@ -97,6 +97,15 @@ class ColumnBinding {
 	protected $formatter;
 
 	protected $linkUrl = null;
+	
+	/**
+	 * Allows to explicitly define the cell type
+	 * @see \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_*
+	 *
+	 * @var null|string
+	 *
+	 */
+	protected $forcedCellType = null;
 
 	/**
 	 * Default contructor
@@ -405,6 +414,23 @@ class ColumnBinding {
 	 */
 	public function setFormatter($formatter) {
 		$this->formatter = $formatter;
+		return $this;
+	}
+	
+	/**
+	 * @return null|string
+	 */
+	public function getForcedCellType() {
+		return $this->forcedCellType;
+	}
+
+	/**
+	 * Explicitly define the cell type
+	 *
+	 * @param null|string $forcedCellType
+	 */
+	public function setForcedCellType(?string $forcedCellType){
+		$this->forcedCellType = $forcedCellType;
 		return $this;
 	}
 }
