@@ -279,7 +279,11 @@ class ConfiguredSheet {
 				$url = call_user_func_array($url, array($binding, $item, $extraData));
 			}
 		}
-		$cell->setValue($value);
+		if($binding->getForcedCellType() === null) {
+			$cell->setValue($value);
+		} else {
+			$cell->setValueExplicit($value, $binding->getForcedCellType());
+		}
 		if($url != null) {
 			$cell->getHyperlink()->setUrl($url);
 		}
