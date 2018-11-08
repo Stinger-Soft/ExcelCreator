@@ -30,6 +30,7 @@
 	"license" : "Apache-2.0",
 	"require" : {
 		"php": "^7.0",
+		"box/spout": "~2.7.3",
 		"doctrine/collections" : "~1.2",
 		"phpoffice/phpspreadsheet" : "^1.2.0",
 		"stinger-soft/php-commons" : "~1.0",

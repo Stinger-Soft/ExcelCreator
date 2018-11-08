@@ -66,6 +66,35 @@ trait Helper {
 	 * @param string $title        	
 	 */
 	protected function setSheetTitle(Worksheet $sheet, $title) {
-		$sheet->setTitle(\substr(\str_replace($sheet::getInvalidCharacters(), '_', $title), 0, 31));
+		$sheet->setTitle($this->cleanSheetTitle($title));
 	}
+
+	/**
+	 * @param $title
+	 * @return bool|string
+	 */
+	protected function cleanSheetTitle($title) {
+		return \substr(\str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
+	}
+
+	/**
+	 *
+	 * Creates a temporary file with the given content
+	 *
+	 * @param string $extension
+	 * @param string $prefix
+	 * @param mixed $content
+	 * @return string the filename of the temporary file
+	 */
+	protected static function createTemporaryFile($extension = null, $prefix = 'stinger_', $content = null) {
+		$filename = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . uniqid($prefix, true);
+		if(null !== $extension) {
+			$filename .= '.' . $extension;
+		}
+		if(null !== $content) {
+			file_put_contents($filename, $content);
+		}
+		return $filename;
+	}
+
 }
