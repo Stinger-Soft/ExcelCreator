@@ -429,7 +429,7 @@ class ColumnBinding {
 	 *
 	 * @param null|string $forcedCellType
 	 */
-	public function setForcedCellType(?string $forcedCellType){
+	public function setForcedCellType($forcedCellType){
 		$this->forcedCellType = $forcedCellType;
 		return $this;
 	}
