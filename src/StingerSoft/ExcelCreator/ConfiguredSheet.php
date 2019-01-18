@@ -356,6 +356,8 @@ class ConfiguredSheet {
 		$this->sheet->freezePaneByColumnAndRow($startColumn, $headerRow + 1);
 		
 		foreach($this->bindings as $columnIndex => $binding) {
+			//PHPExcel -> PHPSpreadsheet = +1
+			$columnIndex++;
 			if($binding->getWrapText()) {
 				$this->sheet->getStyleByColumnAndRow($columnIndex, $headerRow + 1, $columnIndex, $lastRow)->getAlignment()->setWrapText(true);
 			}
