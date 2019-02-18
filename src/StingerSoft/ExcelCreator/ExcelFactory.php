@@ -18,7 +18,7 @@ class ExcelFactory {
 
 	const TYPE_SPOUT = 'spout';
 
-	const TYPE_PHP_SPREADSHEET = 'spout';
+	const TYPE_PHP_SPREADSHEET = 'spreadsheet';
 
 	private function __construct() {
 	}
