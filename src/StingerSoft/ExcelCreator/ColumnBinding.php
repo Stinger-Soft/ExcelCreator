@@ -9,6 +9,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
+
 namespace StingerSoft\ExcelCreator;
 
 /**
@@ -97,7 +98,7 @@ class ColumnBinding {
 	protected $formatter;
 
 	protected $linkUrl = null;
-	
+
 	/**
 	 * Allows to explicitly define the cell type
 	 * @see \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_*
@@ -119,10 +120,19 @@ class ColumnBinding {
 	}
 
 	/**
-	 * Set the URL of the hyperlink or a callable for generating the URL for a hyperlink 
+	 * Get the URL to point a hyperlink  for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 *
+	 * @return string|callable the URL to point a hyprelink for a cell of that column to or <code>null</code> to not add a hyperlink.
+	 */
+	public function getLinkUrl() {
+		return $this->linkUrl;
+	}
+
+	/**
+	 * Set the URL of the hyperlink or a callable for generating the URL for a hyperlink
 	 * for a cell of that column to or <code>null</code> to not add a hyperlink.
-	 * 
-	 * @param string|callable $url the URL of the hyperlink or a callable for generating the URL for a hyperlink 
+	 *
+	 * @param string|callable $url the URL of the hyperlink or a callable for generating the URL for a hyperlink
 	 * for a cell of that column to or <code>null</code> to not add a hyperlink.
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
@@ -130,15 +140,6 @@ class ColumnBinding {
 		$this->linkUrl = $url;
 
 		return $this;
-	}
-
-	/**
-	 * Get the URL to point a hyperlink  for a cell of that column to or <code>null</code> to not add a hyperlink.
-	 * 
-	 * @return string|callable the URL to point a hyprelink for a cell of that column to or <code>null</code> to not add a hyperlink.
-	 */
-	public function getLinkUrl() {
-		return $this->linkUrl;
 	}
 
 	/**
@@ -154,7 +155,7 @@ class ColumnBinding {
 	 * Sets the label of the column header
 	 *
 	 * @param string $label
-	 *        	The label of the column header
+	 *            The label of the column header
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setLabel($label) {
@@ -197,7 +198,7 @@ class ColumnBinding {
 	 * Sets the property path or callable to fetch the value of the bind object.
 	 *
 	 * @param string|callable $binding
-	 *        	The property path or callable to fetch the value of the bind object.
+	 *            The property path or callable to fetch the value of the bind object.
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setBinding($binding) {
@@ -258,7 +259,7 @@ class ColumnBinding {
 	 * Sets the font color to be used for the column header
 	 *
 	 * @param string $headerFontColor
-	 *        	The font color to be used for the column header
+	 *            The font color to be used for the column header
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setHeaderFontColor($headerFontColor) {
@@ -279,7 +280,7 @@ class ColumnBinding {
 	 * Sets the background color to be used for the column header
 	 *
 	 * @param string $headerBackgroundColor
-	 *        	The background color to be used for the column header
+	 *            The background color to be used for the column header
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setHeaderBackgroundColor($headerBackgroundColor) {
@@ -300,7 +301,7 @@ class ColumnBinding {
 	 * Sets the font color to be used for the data cell
 	 *
 	 * @param string $dataFontColor
-	 *        	The font color to be used for the data cell
+	 *            The font color to be used for the data cell
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setDataFontColor($dataFontColor) {
@@ -321,7 +322,7 @@ class ColumnBinding {
 	 * Sets the background color to be used for the data cell
 	 *
 	 * @param string $dataBackgroundColor
-	 *        	The background color to be used for the data cell
+	 *            The background color to be used for the data cell
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setDataBackgroundColor($dataBackgroundColor) {
@@ -344,7 +345,7 @@ class ColumnBinding {
 	 * If the value 'auto' is passed, excel will try to find a suiteable value
 	 *
 	 * @param string|double $columnWidth
-	 *        	The width of this column. If the value 'auto' is passed, excel will try to find a suiteable value
+	 *            The width of this column. If the value 'auto' is passed, excel will try to find a suiteable value
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setColumnWidth($columnWidth) {
@@ -365,7 +366,7 @@ class ColumnBinding {
 	 * Sets the outline group of this column
 	 *
 	 * @param int $outline
-	 *        	The outline group of this column
+	 *            The outline group of this column
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setOutline($outline) {
@@ -409,14 +410,14 @@ class ColumnBinding {
 	 * Set the callable to format the result
 	 *
 	 * @param callable $formatter
-	 *        	The callable to format the result
+	 *            The callable to format the result
 	 * @return \StingerSoft\ExcelCreator\ColumnBinding
 	 */
 	public function setFormatter($formatter) {
 		$this->formatter = $formatter;
 		return $this;
 	}
-	
+
 	/**
 	 * @return null|string
 	 */
@@ -429,7 +430,7 @@ class ColumnBinding {
 	 *
 	 * @param null|string $forcedCellType
 	 */
-	public function setForcedCellType($forcedCellType){
+	public function setForcedCellType(?string $forcedCellType) {
 		$this->forcedCellType = $forcedCellType;
 		return $this;
 	}
