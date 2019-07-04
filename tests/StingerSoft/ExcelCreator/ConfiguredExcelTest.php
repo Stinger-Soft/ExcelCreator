@@ -9,41 +9,55 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace StingerSoft\ExcelCreator;
 
 use PHPUnit\Framework\TestCase;
 
-class ConfiguredExcelTest extends TestCase {
+abstract class ConfiguredExcelTest extends TestCase {
+
+	abstract public function getImplementation(): string;
 
 	public function testSetters() {
-		$excel = new ConfiguredExcel();
-		
+		if($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
+			$this->markTestSkipped('Spout doesn\'t support metadata');
+			return;
+		}
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+
 		$excel->setTitle('TestTitle');
 		$this->assertEquals('TestTitle', $excel->getPhpExcel()->getProperties()->getTitle());
 		$this->assertEquals('TestTitle', $excel->getTitle());
-		
+
 		$excel->setCompany('TestCompany');
 		$this->assertEquals('TestCompany', $excel->getPhpExcel()->getProperties()->getCompany());
 		$this->assertEquals('TestCompany', $excel->getCompany());
-		
+
 		$excel->setCreator('TestCreator');
 		$this->assertEquals('TestCreator', $excel->getPhpExcel()->getProperties()->getCreator());
 		$this->assertEquals('TestCreator', $excel->getCreator());
 	}
 
 	public function testAddSheet() {
-		$excel = new ConfiguredExcel();
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+
 		$this->assertCount(0, $excel->getSheets());
-		$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
-		
+		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
+			$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
+		}
+
 		$sheet = $excel->addSheet('TestSheet');
 		$this->assertCount(1, $excel->getSheets());
-		$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
-		$this->assertEquals('TestSheet', $sheet->getSheet()->getTitle());
-		
+		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
+			$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
+			$this->assertEquals('TestSheet', $sheet->getSheet()->getTitle());
+		}
+
 		$sheet = $excel->addSheet('TestSheet2');
 		$this->assertCount(2, $excel->getSheets());
-		$this->assertCount(2, $excel->getPhpExcel()->getAllSheets());
-		$this->assertEquals('TestSheet2', $sheet->getSheet()->getTitle());
+		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
+			$this->assertCount(2, $excel->getPhpExcel()->getAllSheets());
+			$this->assertEquals('TestSheet2', $sheet->getSheet()->getTitle());
+		}
 	}
 }

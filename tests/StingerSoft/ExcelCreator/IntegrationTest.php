@@ -9,21 +9,24 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace StingerSoft\ExcelCreator;
 
 use PHPUnit\Framework\TestCase;
 
-class IntegrationTest extends TestCase {
+abstract class IntegrationTest extends TestCase {
+
+	abstract public function getImplementation(): string;
 
 	public function testSimpleCycle() {
-		$excel = new ConfiguredExcel();
-		
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+
 		$excel->setTitle('TestCase');
 		$excel->setCreator('Me');
 		$excel->setCompany('StingerSoft');
-		
+
 		$sheet1 = $excel->addSheet('Test Sheet1');
-		
+
 		for($i = 0; $i < 10; $i++) {
 			$binding = new ColumnBinding();
 			$binding->setLabel('Column ' . $i);
@@ -36,7 +39,7 @@ class IntegrationTest extends TestCase {
 			$binding->setHeaderFontColor('FFFFFF');
 			$binding->setDataFontColor('$FFFFFF');
 			$binding->setDataBackgroundColor('$FAFAFA');
-			$binding->setFormatter(function ($value) {
+			$binding->setFormatter(function($value) {
 				return strtoupper($value);
 			});
 			$sheet1->addColumnBinding($binding);
@@ -47,19 +50,19 @@ class IntegrationTest extends TestCase {
 	}
 
 	public function testBindingFunctionCycle() {
-		$excel = new ConfiguredExcel();
-		
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+
 		$excel->setTitle('TestCase');
 		$excel->setCreator('Me');
-		
+
 		$sheet1 = $excel->addSheet('Test Sheet1');
-		
+
 		for($i = 0; $i < 10; $i++) {
 			$binding = new ColumnBinding();
 			$binding->setLabel('Column ' . $i);
 			$binding->setLabelTranslationDomain(false);
 			$binding->setColumnWidth('auto');
-			$binding->setBinding(function (ColumnBinding $bind, $item) {
+			$binding->setBinding(function(ColumnBinding $bind, $item) {
 				return 'Bound via callable';
 			});
 			$binding->setLinkUrl(function(ColumnBinding $bind, $item) use ($i) {

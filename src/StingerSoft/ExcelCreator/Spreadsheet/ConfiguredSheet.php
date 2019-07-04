@@ -42,7 +42,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var ColumnBinding[]|ArrayCollection
 	 */
-	protected $bindings = null;
+	protected $bindings;
 
 	/**
 	 * The default font family for all cells
@@ -77,14 +77,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var string|null
 	 */
-	protected $defaultDataFontColor = null;
+	protected $defaultDataFontColor;
 
 	/**
 	 * The default backgrund color for the data cells
 	 *
 	 * @var string|null
 	 */
-	protected $defaultDataBackgroundColor = null;
+	protected $defaultDataBackgroundColor;
 
 	/**
 	 * The default font size for the data cells
@@ -119,16 +119,16 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var Worksheet
 	 */
-	protected $sheet = null;
+	protected $sheet;
 
 	/**
 	 * Creates some extra data for each data item object
 	 *
 	 * @var callable
 	 */
-	protected $extraData = null;
+	protected $extraData;
 
-	protected $groupByBinding = null;
+	protected $groupByBinding;
 
 	/**
 	 * Default constructor

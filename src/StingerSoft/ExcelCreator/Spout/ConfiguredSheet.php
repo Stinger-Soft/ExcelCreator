@@ -13,17 +13,29 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spout;
 
-use Box\Spout\Writer\Common\Sheet;
-use Box\Spout\Writer\Style\Style;
-use Box\Spout\Writer\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Cell;
+use Box\Spout\Common\Entity\Style\Style;
+use Box\Spout\Common\Exception\InvalidArgumentException;
+use Box\Spout\Common\Exception\IOException;
+use Box\Spout\Common\Exception\SpoutException;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Entity\Sheet;
+use Box\Spout\Writer\Exception\SheetNotFoundException;
+use Box\Spout\Writer\Exception\WriterNotOpenedException;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
 use StingerSoft\PhpCommons\String\Utils;
+use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Traversable;
+use function is_array;
+use function is_callable;
 
 class ConfiguredSheet implements ConfiguredSheetInterface {
 
@@ -62,14 +74,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var string|null
 	 */
-	protected $defaultDataFontColor = null;
+	protected $defaultDataFontColor;
 
 	/**
 	 * The default backgrund color for the data cells
 	 *
 	 * @var string|null
 	 */
-	protected $defaultDataBackgroundColor = null;
+	protected $defaultDataBackgroundColor;
 
 	/**
 	 * The default font size for the data cells
@@ -83,7 +95,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var ColumnBinding[]|ArrayCollection
 	 */
-	protected $bindings = null;
+	protected $bindings;
 
 	/**
 	 * Property accessor to handle property path bindings
@@ -95,7 +107,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * The data bound to this sheet
 	 *
-	 * @var array|\Traversable
+	 * @var array|Traversable
 	 */
 	protected $data;
 
@@ -111,14 +123,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @var Sheet
 	 */
-	protected $sheet = null;
+	protected $sheet;
 
 	/**
 	 * Creates some extra data for each data item object
 	 *
 	 * @var callable
 	 */
-	protected $extraData = null;
+	protected $extraData;
 
 	protected $currentRow = 1;
 
@@ -143,8 +155,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function addColumnBinding(ColumnBinding $binding) {
+	public function addColumnBinding(ColumnBinding $binding): ConfiguredSheetInterface {
 		$this->bindings->add($binding);
+		return $this;
 	}
 
 	/**
@@ -157,27 +170,29 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function setData($data) {
+	public function setData($data): ConfiguredSheetInterface {
 		$this->data = $data;
+		return $this;
 	}
 
 	/**
 	 * @inheritDoc
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\InvalidArgumentException
-	 * @throws \Box\Spout\Common\Exception\SpoutException
-	 * @throws \Box\Spout\Writer\Exception\SheetNotFoundException
-	 * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
+	 * @throws IOException
+	 * @throws InvalidArgumentException
+	 * @throws SpoutException
+	 * @throws SheetNotFoundException
+	 * @throws WriterNotOpenedException
 	 */
-	public function applyData($startColumn = 1, $headerRow = 1) {
+	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface {
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow + 1);
+		return $this;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setExtraData($extraData) {
+	public function setExtraData($extraData): ConfiguredSheetInterface {
 		$this->extraData = $extraData;
 		return $this;
 	}
@@ -185,14 +200,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function getGroupByBinding() {
+	public function getGroupByBinding(): ?ColumnBinding {
 		return null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setGroupByBinding($groupByBinding) {
+	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface {
 		return $this;
 	}
 
@@ -204,7 +219,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @return Style
 	 */
-	protected function getDefaultHeaderStyling($fontColor = null, $bgColor = null) {
+	protected function getDefaultHeaderStyling($fontColor = null, $bgColor = null): Style {
 		return (new StyleBuilder())
 			->setFontSize($this->defaultHeaderFontSize)
 			->setFontColor($fontColor ?: $this->defaultHeaderFontColor)
@@ -222,7 +237,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @param string $bgColor
 	 * @return Style
 	 */
-	protected function getDefaultDataStyling($fontColor = null, $bgColor = null) {
+	protected function getDefaultDataStyling($fontColor = null, $bgColor = null): Style {
 		$builder = new StyleBuilder();
 		$builder->setFontSize($this->defaultDataFontSize);
 		if($fontColor || $this->defaultDataFontColor) {
@@ -243,39 +258,39 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @param int $headerRow
 	 *            The row to start rendering
 	 *
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\InvalidArgumentException
-	 * @throws \Box\Spout\Common\Exception\SpoutException
-	 * @throws \Box\Spout\Writer\Exception\SheetNotFoundException
-	 * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
+	 * @throws IOException
+	 * @throws InvalidArgumentException
+	 * @throws SpoutException
+	 * @throws SheetNotFoundException
+	 * @throws WriterNotOpenedException
 	 */
-	protected function renderHeaderRow($startColumn = 1, $headerRow = 1) {
+	protected function renderHeaderRow($startColumn = 1, $headerRow = 1): void {
 
 		for($i = $this->currentRow; $i < $headerRow; $i++) {
 			$this->addRow([]);
 		}
 		$headerRowData = [];
 		for($i = 1; $i < $startColumn; $i++) {
-			$headerRowData[] = '';
+			$headerRowData[] = WriterEntityFactory::createCell('');
 		}
 
 		foreach($this->bindings as $binding) {
-			$headerRowData[] = $this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain()));
+			$headerRowData[] = WriterEntityFactory::createCell($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
 		}
 		$this->addRow($headerRowData, $this->getDefaultHeaderStyling());
 
 	}
 
 	/**
-	 * @param $data
+	 * @param Cell[] $data
 	 * @param Style|null $styling
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\InvalidArgumentException
-	 * @throws \Box\Spout\Common\Exception\SpoutException
-	 * @throws \Box\Spout\Writer\Exception\SheetNotFoundException
-	 * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
+	 * @throws IOException
+	 * @throws InvalidArgumentException
+	 * @throws SpoutException
+	 * @throws SheetNotFoundException
+	 * @throws WriterNotOpenedException
 	 */
-	protected function addRow($data, Style $styling = null) {
+	protected function addRow($data, Style $styling = null): void {
 		if($styling === null) {
 			$this->excel->addRow($this->sheet, $data);
 		} else {
@@ -291,13 +306,13 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            The column to start rendering
 	 * @param int $startRow
 	 *            The row to start rendering
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\InvalidArgumentException
-	 * @throws \Box\Spout\Common\Exception\SpoutException
-	 * @throws \Box\Spout\Writer\Exception\SheetNotFoundException
-	 * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
+	 * @throws IOException
+	 * @throws InvalidArgumentException
+	 * @throws SpoutException
+	 * @throws SheetNotFoundException
+	 * @throws WriterNotOpenedException
 	 */
-	protected function renderDataRows($startColumn = 1, $startRow = 1) {
+	protected function renderDataRows($startColumn = 1, $startRow = 1): void {
 		$style = $this->getDefaultDataStyling();
 		for($i = $this->currentRow; $i < $startRow; $i++) {
 			$this->excel->addRow($this->sheet, []);
@@ -312,7 +327,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			}
 			$rowData = [];
 			for($i = 1; $i < $startColumn; $i++) {
-				$rowData[] = '';
+				$rowData[] = WriterEntityFactory::createCell('');
 			}
 			foreach($this->bindings as $binding) {
 				$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding(), '', $extraData);
@@ -323,10 +338,36 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				if($binding->getDecodeHtml()) {
 					$value = $this->decodeHtmlEntity($value);
 				}
-				if($value instanceof \DateTime) {
+				if($value instanceof DateTime) {
 					$value = $value->format('Y-m-d H:i:s');
 				}
-				$rowData[] = $value;
+
+				$cell = WriterEntityFactory::createCell($value, $style);
+
+				if($binding->getForcedCellType() !== null) {
+					$cell->setType($binding->getForcedCellType());
+				}
+
+				$styling = $this->getPropertyFromObject($item, $binding, $binding->getDataStyling(), null, $extraData);
+				if(!$styling) {
+					$fontColor = $this->getPropertyFromObject($item, $binding, $binding->getDataFontColor(), $this->defaultDataFontColor, $extraData);
+					$bgColor = $this->getPropertyFromObject($item, $binding, $binding->getDataBackgroundColor(), $this->defaultDataBackgroundColor, $extraData);
+					if($fontColor || $bgColor) {
+						$cell->setStyle($this->getDefaultDataStyling($fontColor, $bgColor));
+					}
+				} else {
+					if($styling instanceof Style) {
+						throw new \InvalidArgumentException('For the spout implementation you have to pass a Style object');
+					}
+					$cell->setStyle($styling);
+				}
+
+				if($binding->getInternalCellModifier() !== null) {
+					call_user_func_array($binding->getInternalCellModifier(), array(
+						$binding, &$cell, $item, $extraData
+					));
+				}
+				$rowData[] = $cell;
 			}
 			$this->addRow($rowData, $style);
 		}
@@ -363,16 +404,16 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 					$path = implode('.', array_slice($pathSegs, 1));
 				}
 				return $this->accessor->getValue($obj, $path);
-			} catch(\Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException $ute) {
+			} catch(UnexpectedTypeException $ute) {
 				return $default;
 			}
-		} else if(\is_callable($path)) {
+		} else if(is_callable($path)) {
 			return call_user_func_array($path, array(
 				$binding,
 				$item,
 				$extraData
 			));
-		} else if(\is_array($path)) {
+		} else if(is_array($path)) {
 			return $path;
 		}
 		return $default;

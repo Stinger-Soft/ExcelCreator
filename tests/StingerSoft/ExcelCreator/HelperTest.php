@@ -12,7 +12,8 @@
 namespace StingerSoft\ExcelCreator;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Translation\TranslatorInterface;
+use StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HelperTest extends TestCase {
 

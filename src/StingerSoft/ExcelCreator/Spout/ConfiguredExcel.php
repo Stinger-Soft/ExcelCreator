@@ -13,14 +13,18 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spout;
 
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\AbstractMultiSheetsWriter;
-use Box\Spout\Writer\Common\Sheet;
+use Box\Spout\Common\Entity\Style\Style;
+use Box\Spout\Common\Exception\InvalidArgumentException;
+use Box\Spout\Common\Exception\IOException;
+use Box\Spout\Common\Exception\SpoutException;
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Entity\Sheet;
+use Box\Spout\Writer\Exception\InvalidSheetNameException;
 use Box\Spout\Writer\Exception\SheetNotFoundException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
-use Box\Spout\Writer\Style\Style;
-use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Writer\WriterMultiSheetsAbstract;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use StingerSoft\ExcelCreator\ConfiguredExcelInterface;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
@@ -40,7 +44,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	/**
 	 * The underyling excel file of PHPExcel
 	 *
-	 * @var AbstractMultiSheetsWriter
+	 * @var WriterMultiSheetsAbstract
 	 */
 	protected $phpExcel;
 
@@ -50,13 +54,13 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	protected $tempFile;
 
 	/**
-	 * Default contructor
-	 * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
-	 * @throws \Box\Spout\Common\Exception\IOException
+	 * Default constructor
+	 * @param TranslatorInterface|null $translator
+	 * @throws IOException
 	 */
 	public function __construct(TranslatorInterface $translator = null) {
 		$this->tempFile = self::createTemporaryFile('xlsx');
-		$this->phpExcel = WriterFactory::create(Type::XLSX);
+		$this->phpExcel = WriterEntityFactory::createXLSXWriter();
 		$this->phpExcel->openToFile($this->tempFile);
 		$this->sheets = new ArrayCollection();
 		$this->translator = $translator;
@@ -65,10 +69,10 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 
 	/**
 	 * @inheritDoc
-	 * @throws \Box\Spout\Writer\Exception\WriterNotOpenedException
-	 * @throws \Box\Spout\Writer\Exception\InvalidSheetNameException
+	 * @throws WriterNotOpenedException
+	 * @throws InvalidSheetNameException
 	 */
-	public function addSheet($title) {
+	public function addSheet(string $title): ConfiguredSheetInterface {
 		$excelSheet = null;
 		if($this->sheets->isEmpty()) {
 			$excelSheet = $this->phpExcel->getCurrentSheet();
@@ -85,10 +89,10 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 * @param Sheet $sheet
 	 * @param array $rowData
 	 * @throws WriterNotOpenedException
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\SpoutException
+	 * @throws IOException
+	 * @throws SpoutException
 	 */
-	public function addRow(Sheet $sheet, array $rowData) {
+	public function addRow(Sheet $sheet, array $rowData): void {
 		try {
 			if($this->phpExcel->getCurrentSheet() !== $sheet) {
 				$this->phpExcel->setCurrentSheet($sheet);
@@ -96,7 +100,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 		} catch(SheetNotFoundException $e) {
 		} catch(WriterNotOpenedException $e) {
 		}
-		$this->phpExcel->addRow($rowData);
+		$this->phpExcel->addRow(WriterEntityFactory::createRow($rowData));
 	}
 
 	/**
@@ -105,70 +109,73 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 * @param Style $style
 	 * @throws SheetNotFoundException
 	 * @throws WriterNotOpenedException
-	 * @throws \Box\Spout\Common\Exception\IOException
-	 * @throws \Box\Spout\Common\Exception\InvalidArgumentException
+	 * @throws IOException
+	 * @throws InvalidArgumentException
 	 */
-	public function addRowWithStyling(Sheet $sheet, array $rowData, Style $style) {
+	public function addRowWithStyling(Sheet $sheet, array $rowData, Style $style): void {
 		if($this->phpExcel->getCurrentSheet() !== $sheet) {
 			$this->phpExcel->setCurrentSheet($sheet);
 		}
-		$this->phpExcel->addRowWithStyle($rowData, $style);
+		$this->phpExcel->addRow(WriterEntityFactory::createRow($rowData, $style));
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getSheets() {
+	public function getSheets(): Collection {
 		return $this->sheets;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getTitle() {
+	public function getTitle(): ?string {
 		return null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setTitle($title) {
+	public function setTitle(?string $title = null): ConfiguredExcelInterface {
+		return $this;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getCreator() {
+	public function getCreator(): ?string {
 		return null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setCreator($creator) {
+	public function setCreator(?string $creator = null): ConfiguredExcelInterface {
+		return $this;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getCompany() {
+	public function getCompany(): ?string {
 		return null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setCompany($company) {
-
+	public function setCompany(?string $company = null): ConfiguredExcelInterface {
+		return $this;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function writeToFile($filename) {
+	public function writeToFile(string $filename): ConfiguredExcelInterface {
 		$this->phpExcel->close();
 		copy($this->tempFile, $filename);
 		@unlink($this->tempFile);
+		return $this;
 	}
 
 }

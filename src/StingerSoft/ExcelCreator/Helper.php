@@ -73,14 +73,16 @@ trait Helper {
 	 * Translates the given key
 	 *
 	 * @param string $key
-	 * @param string $domain
+	 * @param string|bool|null $domain
 	 * @return string
 	 */
-	protected function translate(string $key, ?string $domain = null) : string {
-		if($domain === false || $this->getTranslator() === null)
+	protected function translate(string $key, $domain = null) : string {
+		if($domain === false || $this->getTranslator() === null) {
 			return $key;
-		if($domain === null)
+		}
+		if($domain === null) {
 			$domain = 'messages';
+		}
 		return $this->getTranslator()->trans($key, array(), $domain);
 	}
 
