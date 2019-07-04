@@ -334,7 +334,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			$cell->getHyperlink()->setUrl($url);
 		}
 		if($binding->getInternalCellModifier() !== null) {
-			call_user_func_array($url, array($binding, &$cell, $item, $extraData));
+			call_user_func_array($binding->getInternalCellModifier(), array($binding, &$cell, $item, $extraData));
 		}
 		return $value;
 	}
