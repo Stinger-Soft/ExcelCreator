@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -13,7 +14,7 @@
 namespace StingerSoft\ExcelCreator;
 
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Abstraction layer to represent a single worksheet inside an excel file
@@ -33,56 +34,43 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            Translator to support translation of bindings
 	 */
 	public function __construct(ConfiguredExcel $excel, Worksheet $sheet, TranslatorInterface $translator = null) {
-		$this->configuredSheet = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredSheet($excel, $sheet, $translator);
+		$this->configuredSheet = new Spreadsheet\ConfiguredSheet($excel, $sheet, $translator);
 	}
 
 	/**
-	 * Adds a column binding to this sheet
-	 *
-	 * @param ColumnBinding $binding
+	 * @inheritDoc
 	 */
-	public function addColumnBinding(ColumnBinding $binding) {
+	public function addColumnBinding(ColumnBinding $binding): ConfiguredSheetInterface {
 		$this->configuredSheet->addColumnBinding($binding);
 	}
 
 	/**
-	 * Return the index or key for the given column binding.
-	 *
-	 * @param ColumnBinding $binding the column binding to get the index for
-	 * @return bool|int|mixed|string the key for needle if it is found in the array, false otherwise.
-	 *                               If needle is found in haystack more than once, the first matching key is returned. To return
-	 *                               the keys for all matching values,  use array_keys with the optional search_value parameter instead.
+	 * @inheritDoc
 	 */
 	public function getIndexForBinding(ColumnBinding $binding) {
 		return $this->configuredSheet->getIndexForBinding($binding);
 	}
 
 	/**
-	 * Sets an array of data to bind against this sheet
-	 *
-	 * @param array|\Traversable $data
+	 * @inheritDoc
 	 */
-	public function setData($data) {
+	public function setData($data): ConfiguredSheetInterface {
 		$this->configuredSheet->setData($data);
+		return $this;
 	}
 
 	/**
-	 * Renders the given data on the sheet
-	 *
-	 * @param int $startColumn
-	 *            The column to start rendering
-	 * @param int $headerRow
-	 *            The row to start rendering
+	 * @inheritDoc
 	 */
-	public function applyData($startColumn = 1, $headerRow = 1) {
+	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface {
 		$this->configuredSheet->applyData($startColumn, $headerRow);
+		return $this;
 	}
 
 	/**
-	 *
-	 * @param callable $extraData
+	 * @inheritDoc
 	 */
-	public function setExtraData($extraData) {
+	public function setExtraData($extraData): ConfiguredSheetInterface {
 		$this->configuredSheet->setExtraData($extraData);
 		return $this;
 	}
@@ -92,27 +80,21 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @return Worksheet
 	 */
-	public function getSheet() {
+	public function getSheet(): Worksheet {
 		return $this->configuredSheet->getSheet();
 	}
 
 	/**
-	 * Gets the binding to group rows with the same value generate by the binding
-	 *
-	 * @return ColumnBinding|null The binding to group rows with the same value generate by the binding
+	 * @inheritDoc
 	 */
-	public function getGroupByBinding() {
+	public function getGroupByBinding(): ?ColumnBinding {
 		return $this->configuredSheet->getGroupByBinding();
 	}
 
 	/**
-	 * Sets the binding to group rows with the same value generate by the binding
-	 *
-	 * @param ColumnBinding|null $groupByBinding
-	 *            The binding to group rows with the same value generate by the binding
-	 * @return \StingerSoft\ExcelCreator\ConfiguredSheet
+	 * @inheritDoc
 	 */
-	public function setGroupByBinding($groupByBinding) {
+	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface {
 		$this->configuredSheet->setGroupByBinding($groupByBinding);
 		return $this;
 	}

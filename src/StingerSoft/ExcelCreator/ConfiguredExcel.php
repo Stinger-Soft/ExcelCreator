@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -12,8 +13,10 @@
 
 namespace StingerSoft\ExcelCreator;
 
+use Doctrine\Common\Collections\Collection;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Abstraction class to represent a single excel file
@@ -23,84 +26,69 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	protected $excel;
 
 	/**
-	 * Default contructor
+	 * Default constructor
+	 * @param TranslatorInterface|null $translator
 	 */
 	public function __construct(TranslatorInterface $translator = null) {
 		$this->excel = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel(null, $translator);
 	}
 
 	/**
-	 * Adds and returns a new sheet
-	 *
-	 * @param string $title
-	 *            The title of the new sheet
-	 * @return ConfiguredSheetInterface
+	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function addSheet($title) {
+	public function addSheet(string $title): ConfiguredSheetInterface {
 		return $this->excel->addSheet($title);
 	}
 
 	/**
-	 * Returns the worksheets of this excel file
-	 *
-	 * @return ConfiguredSheetInterface[]
+	 * @inheritDoc
 	 */
-	public function getSheets() {
+	public function getSheets(): Collection {
 		return $this->excel->getSheets();
 	}
 
 	/**
-	 * Returns the title of this excel file
-	 *
-	 * @return string The title of this excel file
+	 * @inheritDoc
 	 */
-	public function getTitle() {
+	public function getTitle(): string {
 		return $this->excel->getTitle();
 	}
 
 	/**
-	 * Sets the title of this excel file
-	 *
-	 * @param string $title
-	 *            The title of this excel file
+	 * @inheritDoc
 	 */
-	public function setTitle($title) {
+	public function setTitle(?string $title = null): ConfiguredExcelInterface {
 		$this->excel->setTitle($title);
+		return $this;
 	}
 
 	/**
-	 * Get the author of this excel file
-	 *
-	 * @return string The author of this excel file
+	 * @inheritDoc
 	 */
-	public function getCreator() {
+	public function getCreator(): ?string {
 		return $this->excel->getCreator();
 	}
 
 	/**
-	 * Sets the author of this excel file
-	 *
-	 * @param string $creator
-	 *            The author of this excel file
+	 * @inheritDoc
 	 */
-	public function setCreator($creator) {
+	public function setCreator(?string $creator = null): ConfiguredExcelInterface {
 		$this->excel->setCreator($creator);
+		return $this;
 	}
 
 	/**
-	 *
-	 * @return string The company this excel file is created by
+	 * @inheritDoc
 	 */
-	public function getCompany() {
+	public function getCompany(): ?string {
 		return $this->excel->getCompany();
 	}
 
 	/**
-	 *
-	 * @param string $company
-	 *            The company this excel file is created by
+	 * @inheritDoc
 	 */
-	public function setCompany($company) {
+	public function setCompany(?string $company = null): ConfiguredExcelInterface {
 		return $this->excel->setCompany($company);
 	}
 
@@ -109,15 +97,16 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 *
 	 * @return Spreadsheet The underyling PHPExcel object
 	 */
-	public function getPhpExcel() {
+	public function getPhpExcel(): Spreadsheet {
 		return $this->excel->getPhpExcel();
 	}
 
 	/**
-	 * @param $filename
+	 * @inheritDoc
 	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
 	 */
-	public function writeToFile($filename) {
+	public function writeToFile(string $filename): ConfiguredExcelInterface {
 		$this->excel->writeToFile($filename);
+		return $this;
 	}
 }

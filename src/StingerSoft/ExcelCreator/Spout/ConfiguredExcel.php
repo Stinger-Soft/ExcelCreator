@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -23,7 +24,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use StingerSoft\ExcelCreator\ConfiguredExcelInterface;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ConfiguredExcel implements ConfiguredExcelInterface {
 

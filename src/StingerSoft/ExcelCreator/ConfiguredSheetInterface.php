@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -17,8 +18,9 @@ interface ConfiguredSheetInterface {
 	 * Adds a column binding to this sheet
 	 *
 	 * @param ColumnBinding $binding
+	 * @return ConfiguredSheetInterface
 	 */
-	public function addColumnBinding(ColumnBinding $binding);
+	public function addColumnBinding(ColumnBinding $binding): ConfiguredSheetInterface;
 
 	/**
 	 * Return the index or key for the given column binding.
@@ -34,8 +36,9 @@ interface ConfiguredSheetInterface {
 	 * Sets an array of data to bind against this sheet
 	 *
 	 * @param array|\Traversable $data
+	 * @return ConfiguredSheetInterface
 	 */
-	public function setData($data);
+	public function setData($data): ConfiguredSheetInterface;
 
 	/**
 	 * Renders the given data on the sheet
@@ -44,29 +47,31 @@ interface ConfiguredSheetInterface {
 	 *            The column to start rendering
 	 * @param int $headerRow
 	 *            The row to start rendering
+	 * @return ConfiguredSheetInterface
 	 */
-	public function applyData($startColumn = 1, $headerRow = 1);
+	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface;
 
 	/**
 	 *
 	 * @param callable $extraData
+	 * @return ConfiguredSheetInterface
 	 */
-	public function setExtraData($extraData);
+	public function setExtraData($extraData): ConfiguredSheetInterface;
 
 	/**
 	 * Gets the binding to group rows with the same value generate by the binding
 	 *
 	 * @return ColumnBinding|null The binding to group rows with the same value generate by the binding
 	 */
-	public function getGroupByBinding();
+	public function getGroupByBinding(): ?ColumnBinding;
 
 	/**
 	 * Sets the binding to group rows with the same value generate by the binding
 	 *
 	 * @param ColumnBinding|null $groupByBinding
 	 *            The binding to group rows with the same value generate by the binding
-	 * @return \StingerSoft\ExcelCreator\ConfiguredSheet
+	 * @return self
 	 */
-	public function setGroupByBinding($groupByBinding);
+	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface;
 
 }

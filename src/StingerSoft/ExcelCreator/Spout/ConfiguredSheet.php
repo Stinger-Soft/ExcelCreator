@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -22,7 +23,7 @@ use StingerSoft\ExcelCreator\Helper;
 use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ConfiguredSheet implements ConfiguredSheetInterface {
 

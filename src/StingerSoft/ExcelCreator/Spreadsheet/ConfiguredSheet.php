@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -15,6 +16,7 @@ namespace StingerSoft\ExcelCreator\Spreadsheet;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -22,9 +24,11 @@ use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
 use StingerSoft\PhpCommons\String\Utils;
+use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Traversable;
 
 /**
  * Abstraction layer to represent a single worksheet inside an excel file
@@ -99,7 +103,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * The data bound to this sheet
 	 *
-	 * @var array|\Traversable
+	 * @var array|Traversable
 	 */
 	protected $data;
 
@@ -145,54 +149,43 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	}
 
 	/**
-	 * Adds a column binding to this sheet
-	 *
-	 * @param ColumnBinding $binding
+	 * @inheritDoc
 	 */
-	public function addColumnBinding(ColumnBinding $binding) {
+	public function addColumnBinding(ColumnBinding $binding): ConfiguredSheetInterface {
 		$this->bindings->add($binding);
+		return $this;
 	}
 
 	/**
-	 * Return the index or key for the given column binding.
-	 *
-	 * @param ColumnBinding $binding the column binding to get the index for
-	 * @return bool|int|mixed|string the key for needle if it is found in the array, false otherwise.
-	 *                               If needle is found in haystack more than once, the first matching key is returned. To return
-	 *                               the keys for all matching values,  use array_keys with the optional search_value parameter instead.
+	 * @inheritDoc
 	 */
 	public function getIndexForBinding(ColumnBinding $binding) {
 		return $this->bindings->indexOf($binding);
 	}
 
 	/**
-	 * Sets an array of data to bind against this sheet
-	 *
-	 * @param array|\Traversable $data
+	 * @inheritDoc
 	 */
-	public function setData($data) {
+	public function setData($data): ConfiguredSheetInterface {
 		$this->data = $data;
+		return $this;
 	}
 
 	/**
-	 * Renders the given data on the sheet
-	 *
-	 * @param int $startColumn
-	 *            The column to start rendering
-	 * @param int $headerRow
-	 *            The row to start rendering
+	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function applyData($startColumn = 1, $headerRow = 1) {
+	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface {
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow);
 		$this->applyTableStyling($startColumn, $headerRow);
+		return $this;
 	}
 
 	/**
-	 *
-	 * @param callable $extraData
+	 * @inheritDoc
 	 */
-	public function setExtraData($extraData) {
+	public function setExtraData($extraData): ConfiguredSheetInterface {
 		$this->extraData = $extraData;
 		return $this;
 	}
@@ -202,27 +195,21 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *
 	 * @return Worksheet
 	 */
-	public function getSheet() {
+	public function getSheet(): Worksheet {
 		return $this->sheet;
 	}
 
 	/**
-	 * Gets the binding to group rows with the same value generate by the binding
-	 *
-	 * @return ColumnBinding|null The binding to group rows with the same value generate by the binding
+	 * @inheritDoc
 	 */
-	public function getGroupByBinding() {
+	public function getGroupByBinding(): ColumnBinding {
 		return $this->groupByBinding;
 	}
 
 	/**
-	 * Sets the binding to group rows with the same value generate by the binding
-	 *
-	 * @param ColumnBinding|null $groupByBinding
-	 *            The binding to group rows with the same value generate by the binding
-	 * @return ConfiguredSheetInterface
+	 * @inheritDoc
 	 */
-	public function setGroupByBinding($groupByBinding) {
+	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface {
 		$this->groupByBinding = $groupByBinding;
 		return $this;
 	}
@@ -234,18 +221,20 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            The column to start rendering
 	 * @param int $headerRow
 	 *            The row to start rendering
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws Exception
 	 */
-	protected function renderHeaderRow($startColumn = 1, $headerRow = 1) {
+	protected function renderHeaderRow($startColumn = 1, $headerRow = 1): void {
 		$this->sheet->getStyle(Coordinate::stringFromColumnIndex($startColumn) . $headerRow . ':' . Coordinate::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
 		foreach($this->bindings as $binding) {
 			$cell = $this->sheet->getCellByColumnAndRow($startColumn, $headerRow);
-			$cell->setValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
-			if($binding->getOutline()) {
-				$this->sheet->getColumnDimensionByColumn($startColumn)->setOutlineLevel($binding->getOutline());
-			}
-			if($binding->getHeaderFontColor() || $binding->getHeaderBackgroundColor()) {
-				$cell->getStyle()->applyFromArray($this->getDefaultHeaderStyling($binding->getHeaderFontColor(), $binding->getHeaderBackgroundColor()));
+			if($cell !== null) {
+				$cell->setValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
+				if($binding->getOutline()) {
+					$this->sheet->getColumnDimensionByColumn($startColumn)->setOutlineLevel($binding->getOutline());
+				}
+				if($binding->getHeaderFontColor() || $binding->getHeaderBackgroundColor()) {
+					$cell->getStyle()->applyFromArray($this->getDefaultHeaderStyling($binding->getHeaderFontColor(), $binding->getHeaderBackgroundColor()));
+				}
 			}
 			$startColumn++;
 		}
@@ -258,28 +247,28 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            The column to start rendering
 	 * @param int $headerRow
 	 *            The row to start rendering
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws Exception
 	 */
-	protected function renderDataRows($startColumn = 1, $headerRow = 1) {
+	protected function renderDataRows($startColumn = 1, $headerRow = 1): void {
 		$row = $headerRow + 1;
 		$lastGroupingValue = null;
 		foreach($this->data as $item) {
 			$this->sheet->getStyleByColumnAndRow($startColumn, $row, $startColumn + count($this->bindings) - 1, $row)->applyFromArray($this->getDefaultDataStyling($this->defaultDataFontColor, $this->defaultDataBackgroundColor));
 			$extraData = array();
 			if($this->extraData && is_callable($this->extraData)) {
-				$extraData = call_user_func_array($this->extraData, array(
-					$item
-				));
+				$extraData = call_user_func($this->extraData, $item);
 			}
 			$column = $startColumn;
 			foreach($this->bindings as $binding) {
 				$cell = $this->sheet->getCellByColumnAndRow($column, $row);
-				$value = $this->renderDataCell($cell, $item, $binding, $extraData);
-				if($this->groupByBinding === $binding) {
-					if($value == $lastGroupingValue) {
-						$this->sheet->getRowDimension($cell->getRow())->setOutlineLevel(1);
-					} else {
-						$lastGroupingValue = $value;
+				if($cell !== null) {
+					$value = $this->renderDataCell($cell, $item, $binding, $extraData);
+					if($this->groupByBinding === $binding) {
+						if($value === $lastGroupingValue) {
+							$this->sheet->getRowDimension($cell->getRow())->setOutlineLevel(1);
+						} else {
+							$lastGroupingValue = $value;
+						}
 					}
 				}
 
@@ -296,7 +285,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @param Cell $cell
 	 * @param object|array $item
 	 * @param ColumnBinding $binding
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @param array $extraData
+	 * @return mixed
+	 * @throws Exception
 	 */
 	protected function renderDataCell(Cell $cell, $item, ColumnBinding $binding, array $extraData) {
 		$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding(), '', $extraData);
@@ -320,10 +311,8 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			$value = $this->decodeHtmlEntity($value);
 		}
 		$url = $binding->getLinkUrl();
-		if($url !== null) {
-			if(is_callable($url)) {
-				$url = call_user_func_array($url, array($binding, $item, $extraData));
-			}
+		if(($url !== null) && is_callable($url)) {
+			$url = call_user_func($url, $binding, $item, $extraData);
 		}
 		if($binding->getForcedCellType() === null) {
 			$cell->setValue($value);
@@ -349,11 +338,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            The property or callable to fetch the desired property
 	 * @param string $default
 	 *            The default value if no property was fetched
+	 * @param array $extraData
 	 * @return mixed The value of the requested property
 	 */
 	protected function getPropertyFromObject($item, ColumnBinding $binding, $path, $default = '', array $extraData = array()) {
-		if(!$path === null)
+		// Before $path was a !, nobody knows why...
+		if($path === null) {
 			return $default;
+		}
 		if(is_string($path)) {
 			try {
 				$obj = $item;
@@ -363,21 +355,18 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				if(Utils::startsWith($path, '!')) {
 					$pathSegs = explode('.', $path);
 					$extraDataId = substr($pathSegs[0], 1);
-					if(!isset($extraData[$extraDataId]))
+					if(!isset($extraData[$extraDataId])) {
 						return $default;
+					}
 					$obj = $extraData[$extraDataId];
 					$path = implode('.', array_slice($pathSegs, 1));
 				}
 				return $this->accessor->getValue($obj, $path);
-			} catch(\Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException $ute) {
+			} catch(UnexpectedTypeException $ute) {
 				return $default;
 			}
 		} else if(is_callable($path)) {
-			return call_user_func_array($path, array(
-				$binding,
-				$item,
-				$extraData
-			));
+			return call_user_func($path, $binding, $item, $extraData);
 		} else if(is_array($path)) {
 			return $path;
 		}
@@ -392,9 +381,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 *            The column to start rendering
 	 * @param int $headerRow
 	 *            The row to start rendering
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws Exception
 	 */
-	protected function applyTableStyling($startColumn = 0, $headerRow = 1) {
+	protected function applyTableStyling($startColumn = 0, $headerRow = 1): void {
 		// Header filterable
 		$lastColumn = $this->sheet->getHighestDataColumn();
 		$lastRow = $this->sheet->getHighestDataRow();
@@ -428,7 +417,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @param string $bgColor
 	 * @return string[]
 	 */
-	protected function getDefaultDataStyling($fontColor, $bgColor) {
+	protected function getDefaultDataStyling($fontColor, $bgColor): array {
 		$styling = array(
 			'font' => array(
 				'name' => $this->defaultFontFamily,
@@ -454,9 +443,11 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * Returns the default styling for headers cells
 	 *
+	 * @param string|null $fontColor
+	 * @param string|null $bgColor
 	 * @return string[]
 	 */
-	protected function getDefaultHeaderStyling($fontColor = null, $bgColor = null) {
+	protected function getDefaultHeaderStyling(?string $fontColor = null, ?string $bgColor = null): array {
 		return array(
 			'font'      => array(
 				'name'  => $this->defaultFontFamily,

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -12,6 +13,8 @@
 
 namespace StingerSoft\ExcelCreator;
 
+use Doctrine\Common\Collections\Collection;
+
 interface ConfiguredExcelInterface {
 
 	/**
@@ -21,62 +24,65 @@ interface ConfiguredExcelInterface {
 	 *            The title of the new sheet
 	 * @return ConfiguredSheetInterface
 	 */
-	public function addSheet($title);
+	public function addSheet(string $title): ConfiguredSheetInterface;
 
 	/**
 	 * Returns the worksheets of this excel file
 	 *
-	 * @return ConfiguredSheetInterface[]
+	 * @return ConfiguredSheetInterface[]|Collection
 	 */
-	public function getSheets();
+	public function getSheets(): Collection;
 
 	/**
 	 * Returns the title of this excel file
 	 *
-	 * @return string The title of this excel file
+	 * @return string|null The title of this excel file
 	 */
-	public function getTitle();
+	public function getTitle(): ?string;
 
 	/**
 	 * Sets the title of this excel file
 	 *
-	 * @param string $title
+	 * @param string|null $title
 	 *            The title of this excel file
+	 * @return ConfiguredExcelInterface
 	 */
-	public function setTitle($title);
+	public function setTitle(?string $title = null): self;
 
 	/**
 	 * Get the author of this excel file
 	 *
-	 * @return string The author of this excel file
+	 * @return string|null The author of this excel file
 	 */
-	public function getCreator();
+	public function getCreator(): ?string;
 
 	/**
 	 * Sets the author of this excel file
 	 *
-	 * @param string $creator
+	 * @param string|null $creator
 	 *            The author of this excel file
+	 * @return ConfiguredExcelInterface
 	 */
-	public function setCreator($creator);
+	public function setCreator(?string $creator = null): self;
 
 	/**
 	 *
-	 * @return string The company this excel file is created by
+	 * @return string|null The company this excel file is created by
 	 */
-	public function getCompany();
+	public function getCompany(): ?string;
 
 	/**
 	 *
-	 * @param string $company
+	 * @param string|null $company
 	 *            The company this excel file is created by
+	 * @return ConfiguredExcelInterface
 	 */
-	public function setCompany($company);
+	public function setCompany(?string $company = null): self;
 
 	/**
-	 * @return void
+	 * @param string $filename
+	 * @return ConfiguredExcelInterface
 	 */
-	public function writeToFile($filename);
-
+	public function writeToFile(string $filename): self;
 
 }
