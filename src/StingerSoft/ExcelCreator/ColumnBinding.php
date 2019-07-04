@@ -97,6 +97,11 @@ class ColumnBinding {
 	 */
 	protected $formatter;
 
+	/**
+	 * @var callable|null Allows to make changes on the underlying cell object.
+	 */
+	protected $internalCellModifier;
+
 	protected $linkUrl = null;
 
 	/**
@@ -434,4 +439,25 @@ class ColumnBinding {
 		$this->forcedCellType = $forcedCellType;
 		return $this;
 	}
+
+	/**
+	 * @return callable|null
+	 */
+	public function getInternalCellModifier(){
+		return $this->internalCellModifier;
+	}
+
+	/**
+	 * Set a callable to modify the internal cell object
+	 *
+	 * @param callable|null $internalCellModifier
+	 * @return ColumnBinding
+	 */
+	public function setInternalCellModifier($internalCellModifier) {
+		$this->internalCellModifier = $internalCellModifier;
+		return $this;
+	}
+
+
+
 }
