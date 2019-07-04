@@ -330,8 +330,11 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		} else {
 			$cell->setValueExplicit($value, $binding->getForcedCellType());
 		}
-		if($url != null) {
+		if($url !== null) {
 			$cell->getHyperlink()->setUrl($url);
+		}
+		if($binding->getInternalCellModifier() !== null) {
+			call_user_func_array($url, array($binding, &$cell, $item, $extraData));
 		}
 		return $value;
 	}
