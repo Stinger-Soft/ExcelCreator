@@ -32,9 +32,8 @@ class ExcelFactory {
 	/**
 	 * @param string $type
 	 * @param TranslatorInterface|null $translator
-	 * @return ConfiguredExcel|null
+	 * @return ConfiguredExcelInterface|null
 	 * @throws IOException
-	 * @throws UnsupportedTypeException
 	 */
 	public static function createConfiguredExcel(string $type = self::TYPE_PHP_SPREADSHEET, ?TranslatorInterface $translator = null): ConfiguredExcelInterface {
 		$configuredExcel = null;

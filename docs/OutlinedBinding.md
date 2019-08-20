@@ -78,7 +78,7 @@ $guests[] = $person;
 $sheet1->setData($guests);
 $sheet1->applyData();
 
-\PHPExcel_IOFactory::createWriter($excel->getPhpExcel(), 'Excel2007')->save(__DIR__.'/outline_binding.xlsx');
+$excel->writeToFile(__DIR__.'/outline_binding.xlsx');
 
 ```
 

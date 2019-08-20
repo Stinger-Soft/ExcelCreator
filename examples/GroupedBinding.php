@@ -1,13 +1,13 @@
 <?php
 
-use StingerSoft\ExcelCreator\ConfiguredExcel;
 use StingerSoft\ExcelCreator\ColumnBinding;
+use StingerSoft\ExcelCreator\ExcelFactory;
 
 include __DIR__.'/../vendor/autoload.php';
 include __DIR__.'/Person.php';
 
 //Create excel file
-$excel = new ConfiguredExcel();
+$excel = ExcelFactory::createConfiguredExcel();
 
 //and a first sheet called 'Party guests'
 $sheet1 = $excel->addSheet('Party guests');
@@ -82,4 +82,4 @@ $guests[] = $person;
 $sheet1->setData($guests);
 $sheet1->applyData();
 
-\PhpOffice\PhpSpreadsheet\IOFactory::createWriter($excel->getPhpExcel(), 'Xlsx')->save(__DIR__.'/grouped_binding.xlsx');
+$excel->writeToFile(__DIR__.'/grouped_binding.xlsx');
