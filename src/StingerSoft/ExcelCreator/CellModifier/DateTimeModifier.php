@@ -42,7 +42,7 @@ class DateTimeModifier {
 		 * @param ColumnBinding $binding
 		 * @param SpoutCell|SpreadsheetCell $cell
 		 */
-		return static function(ColumnBinding $binding, &$cell) use ($formatCode) {
+		return static function(ColumnBinding $binding, $cell) use ($formatCode) {
 			if($cell instanceof SpoutCell) {
 				$style = $cell->getStyle();
 				if($style === null) {
