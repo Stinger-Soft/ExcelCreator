@@ -41,18 +41,13 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	protected $phpExcel;
 
 	/**
-	 * @var string
+	 * Default constructor
+	 * @param TranslatorInterface|null $translator
 	 */
-	protected $filename;
-
-	/**
-	 * Default contructor
-	 */
-	public function __construct($filename = null, TranslatorInterface $translator = null) {
+	public function __construct(TranslatorInterface $translator = null) {
 		$this->phpExcel = new Spreadsheet();
 		$this->sheets = new ArrayCollection();
 		$this->translator = $translator;
-		$this->filename = $filename;
 	}
 
 	/**
