@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spreadsheet;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -315,8 +316,8 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		if(($url !== null) && is_callable($url)) {
 			$url = call_user_func($url, $binding, $item, $extraData);
 		}
-		if($value instanceof \DateTime) {
-			$value= Date::PHPToExcel($value);
+		if($value instanceof DateTime) {
+			$value = Date::PHPToExcel($value);
 		}
 		if($binding->getForcedCellType() === null) {
 			$cell->setValue($value);

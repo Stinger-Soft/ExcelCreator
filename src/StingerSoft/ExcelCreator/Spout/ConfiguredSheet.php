@@ -340,7 +340,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 					$value = $this->decodeHtmlEntity($value);
 				}
 
-				if($value instanceof \DateTime) {
+				if($value instanceof DateTime) {
 					$value= Date::PHPToExcel($value);
 				}
 
