@@ -25,30 +25,32 @@ class DateTimeModifier {
 	 * @return callable
 	 */
 	public static function createDateModifier(): callable {
-		return self::createFormatModifier('m/d/yyyy');
+		return self::createFormatModifier('m/d/yyyy', 'mm-dd-yy');
 	}
 
 	/**
-	 * @param bool $addSeconds
+	 * @param bool $addSeconds  Note: not working for SPOUT..
 	 * @return callable
 	 */
 	public static function createDateTimeModifier(bool $addSeconds = false): callable {
-		return self::createFormatModifier('m/d/yyyy h:mm' . ($addSeconds ? ':ss' : ''));
+		return self::createFormatModifier('m/d/yyyy h:mm' . ($addSeconds ? ':ss' : ''), 'm/d/yy h:mm');
 	}
 
-	public static function createFormatModifier(string $formatCode): callable {
+	public static function createFormatModifier(string $formatCode, ?string $spoutFormatCode = null): callable {
+		$spoutFormatCode = $spoutFormatCode ?? $formatCode;
+
 		/**
 		 *
 		 * @param ColumnBinding $binding
 		 * @param SpoutCell|SpreadsheetCell $cell
 		 */
-		return static function(ColumnBinding $binding, $cell) use ($formatCode) {
+		return static function(ColumnBinding $binding, $cell) use ($formatCode, $spoutFormatCode) {
 			if($cell instanceof SpoutCell) {
 				$style = $cell->getStyle();
 				if($style === null) {
 					$style = new Style();
 				}
-				$style->setFormat($formatCode);
+				$style->setFormat($spoutFormatCode);
 				$cell->setStyle($style);
 				return;
 			}
