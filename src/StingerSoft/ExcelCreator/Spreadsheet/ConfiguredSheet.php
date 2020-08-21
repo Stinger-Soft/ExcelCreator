@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -313,6 +314,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		$url = $binding->getLinkUrl();
 		if(($url !== null) && is_callable($url)) {
 			$url = call_user_func($url, $binding, $item, $extraData);
+		}
+		if($value instanceof \DateTime) {
+			$value= Date::PHPToExcel($value);
 		}
 		if($binding->getForcedCellType() === null) {
 			$cell->setValue($value);

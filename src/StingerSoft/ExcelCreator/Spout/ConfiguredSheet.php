@@ -25,6 +25,7 @@ use Box\Spout\Writer\Exception\SheetNotFoundException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
@@ -338,8 +339,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				if($binding->getDecodeHtml()) {
 					$value = $this->decodeHtmlEntity($value);
 				}
-				if($value instanceof DateTime) {
-					$value = $value->format('Y-m-d H:i:s');
+
+				if($value instanceof \DateTime) {
+					$value= Date::PHPToExcel($value);
 				}
 
 				$cell = WriterEntityFactory::createCell($value, $style);
@@ -356,7 +358,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 						$cell->setStyle($this->getDefaultDataStyling($fontColor, $bgColor));
 					}
 				} else {
-					if($styling instanceof Style) {
+					if(!$styling instanceof Style) {
 						throw new \InvalidArgumentException('For the spout implementation you have to pass a Style object');
 					}
 					$cell->setStyle($styling);
