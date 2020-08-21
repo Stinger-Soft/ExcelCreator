@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace StingerSoft\ExcelCreator;
 
 use Box\Spout\Common\Exception\IOException;
-use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExcelFactory {
@@ -32,20 +31,19 @@ class ExcelFactory {
 	/**
 	 * @param string $type
 	 * @param TranslatorInterface|null $translator
-	 * @return ConfiguredExcelInterface|null
-	 * @throws IOException
+	 * @return ConfiguredExcelInterface
 	 */
 	public static function createConfiguredExcel(string $type = self::TYPE_PHP_SPREADSHEET, ?TranslatorInterface $translator = null): ConfiguredExcelInterface {
-		$configuredExcel = null;
 		switch($type) {
 			case self::TYPE_SPOUT:
-				$configuredExcel = new \StingerSoft\ExcelCreator\Spout\ConfiguredExcel($translator);
-				break;
+				try {
+					return new Spout\ConfiguredExcel($translator);
+				} catch(IOException $e) {
+					throw new \RuntimeException('Cannot create instance of Spout ConfiguredExcel', 0, $e);
+				}
 			default:
-				$configuredExcel = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel($translator);
+				return new Spreadsheet\ConfiguredExcel($translator);
 		}
-
-		return $configuredExcel;
 	}
 
 }
