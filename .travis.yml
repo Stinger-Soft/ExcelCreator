@@ -18,8 +18,8 @@ matrix:
     - php: 7.4
       env: COVERALLS=1
 
-    - php: 8.0
-      env: COVERALLS=1
+#    - php: 8.0
+#      env: COVERALLS=1
 
 before_install:
   - composer self-update
