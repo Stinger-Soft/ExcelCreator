@@ -44,7 +44,7 @@ script:
   - sh -c "if [ '$COVERALLS' = '0' ]; then ./vendor/bin/phpunit --stderr -v; fi"
 
 after_script:
-  - sh -c "if [ '$COVERALLS' = '1' ]; then php ./vendor/bin/coveralls -v; fi"
+  - sh -c "if [ '$COVERALLS' = '1' ]; then ./vendor/bin/php-coveralls -v; fi"
 
 notifications:
   email:
