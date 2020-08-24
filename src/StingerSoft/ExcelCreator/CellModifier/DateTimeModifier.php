@@ -13,13 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\CellModifier;
 
-
-use Box\Spout\Common\Entity\Cell as SpoutCell;
-use Box\Spout\Common\Entity\Style\Style;
-use PhpOffice\PhpSpreadsheet\Cell\Cell as SpreadsheetCell;
-use StingerSoft\ExcelCreator\ColumnBinding;
-
-class DateTimeModifier {
+class DateTimeModifier extends AbstractModifier {
 
 	/**
 	 * @return callable
@@ -29,36 +23,18 @@ class DateTimeModifier {
 	}
 
 	/**
-	 * @param bool $addSeconds  Note: not working for SPOUT..
+	 * @param bool $addSeconds Note: not working for SPOUT..
 	 * @return callable
 	 */
 	public static function createDateTimeModifier(bool $addSeconds = false): callable {
 		return self::createFormatModifier('m/d/yyyy h:mm' . ($addSeconds ? ':ss' : ''), 'm/d/yy h:mm');
 	}
 
-	public static function createFormatModifier(string $formatCode, ?string $spoutFormatCode = null): callable {
-		$spoutFormatCode = $spoutFormatCode ?? $formatCode;
-
-		/**
-		 *
-		 * @param ColumnBinding $binding
-		 * @param SpoutCell|SpreadsheetCell $cell
-		 */
-		return static function(ColumnBinding $binding, $cell) use ($formatCode, $spoutFormatCode) {
-			if($cell instanceof SpoutCell) {
-				$style = $cell->getStyle();
-				if($style === null) {
-					$style = new Style();
-				}
-				$style->setFormat($spoutFormatCode);
-				$cell->setStyle($style);
-				return;
-			}
-			if($cell instanceof SpreadsheetCell) {
-				$style = $cell->getStyle();
-				$style->applyFromArray(['numberFormat' => ['formatCode' => $formatCode]]);
-				return;
-			}
-		};
+	/**
+	 * @param bool $addSeconds
+	 * @return callable
+	 */
+	public static function createTimeModifier(bool $addSeconds = false): callable {
+		return self::createFormatModifier('h:mm' . ($addSeconds ? ':ss' : ''));
 	}
 }
