@@ -51,7 +51,9 @@ trait Helper {
 		}
 		if(static::$temporaryFileNames === null) {
 			static::$temporaryFileNames = [$filename];
-			register_shutdown_function([__CLASS__, 'removeTemporaryFiles']);
+			register_shutdown_function(static function () {
+				static::removeTemporaryFiles();
+			});
 		} else {
 			static::$temporaryFileNames[] = $filename;
 		}
