@@ -49,9 +49,9 @@ trait Helper {
 		if(null !== $content) {
 			file_put_contents($filename, $content);
 		}
-		if(self::$temporaryFileNames === null) {
-			self::$temporaryFileNames = [$filename];
-			register_shutdown_function([self::class, 'removeTemporaryFiles']);
+		if(static::$temporaryFileNames === null) {
+			static::$temporaryFileNames = [$filename];
+			register_shutdown_function([static::class, 'removeTemporaryFiles']);
 		}
 		return $filename;
 	}
@@ -112,15 +112,15 @@ trait Helper {
 	}
 
 	protected static function getTemporaryFileNames(): array {
-		return self::$temporaryFileNames ?? [];
+		return static::$temporaryFileNames ?? [];
 	}
 
 	protected static function removeTemporaryFiles(): void {
-		if(self::$temporaryFileNames !== null) {
-			foreach(self::$temporaryFileNames as $temporaryFileName) {
+		if(static::$temporaryFileNames !== null) {
+			foreach(static::$temporaryFileNames as $temporaryFileName) {
 				@unlink($temporaryFileName);
 			}
-			self::$temporaryFileNames = [];
+			static::$temporaryFileNames = [];
 		}
 	}
 
