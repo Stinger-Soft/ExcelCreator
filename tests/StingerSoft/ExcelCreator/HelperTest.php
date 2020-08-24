@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -9,6 +10,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace StingerSoft\ExcelCreator;
 
 use PHPUnit\Framework\TestCase;
@@ -18,35 +20,43 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class HelperTest extends TestCase {
 
 	use Helper;
-	
-	public function testDecodeHtmlEntity() {
-		$this->assertEquals('Laphroaig', $this->decodeHtmlEntity('La&shy;phroaig'));
-		$this->assertEquals('Laphroaig', $this->decodeHtmlEntity('Laphroaig'));
+
+	public function testDecodeHtmlEntity(): void {
+		self::assertEquals('Laphroaig', $this->decodeHtmlEntity('La&shy;phroaig'));
+		self::assertEquals('Laphroaig', $this->decodeHtmlEntity('Laphroaig'));
 	}
-	
-	public function testTranslate() {
-		$this->assertEquals('Laphroaig', $this->translate('Laphroaig', false));
-		
-		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(array('trans'))->getMockForAbstractClass();
-		$translator->expects($this->exactly(2))->method('trans')->willReturn('translated');
+
+	public function testTranslate(): void {
+		self::assertEquals('Laphroaig', $this->translate('Laphroaig', false));
+
+		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(['trans'])->getMockForAbstractClass();
+		$translator->expects(self::exactly(2))->method('trans')->willReturn('translated');
 		$this->translator = $translator;
-		
-		$this->assertEquals('translated', $this->translate('Laphroaig', null));
-		$this->assertEquals('translated', $this->translate('Laphroaig', 'domain'));
+
+		self::assertEquals('translated', $this->translate('Laphroaig', null));
+		self::assertEquals('translated', $this->translate('Laphroaig', 'domain'));
 	}
-	
-	public function testSetSheetTitle() {
+
+	public function testCreateTemporaryFile(): void {
+		$fileName = self::createTemporaryFile('tmp', 'test');
+		self::assertContains($fileName, self::getTemporaryFileNames());
+
+		self::removeTemporaryFiles();
+		self::assertEmpty(self::getTemporaryFileNames());
+	}
+
+	public function testSetSheetTitle(): void {
 		$excel = new ConfiguredExcel();
 		$sheet = $excel->addSheet('test')->getSheet();
-		
+
 		$this->setSheetTitle($sheet, 'TestTitle');
-		$this->assertEquals('TestTitle', $sheet->getTitle());
-		
+		self::assertEquals('TestTitle', $sheet->getTitle());
+
 		$this->setSheetTitle($sheet, '0123456789012345678901234567890123456789');
-		$this->assertEquals('0123456789012345678901234567890', $sheet->getTitle());
-		
+		self::assertEquals('0123456789012345678901234567890', $sheet->getTitle());
+
 		$this->setSheetTitle($sheet, 'Test:::::');
-		$this->assertEquals('Test_____', $sheet->getTitle());
+		self::assertEquals('Test_____', $sheet->getTitle());
 	}
 
 }

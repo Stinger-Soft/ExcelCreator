@@ -24,6 +24,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
+use StingerSoft\ExcelCreator\DataType\DataTypes;
 use StingerSoft\ExcelCreator\Helper;
 use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
@@ -322,7 +323,8 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		if($binding->getForcedCellType() === null) {
 			$cell->setValue($value);
 		} else {
-			$cell->setValueExplicit($value, $binding->getForcedCellType());
+			$explicitType = DataTypes::getSpreadsheetCellType($binding->getForcedCellType());
+			$cell->setValueExplicit($value, $explicitType);
 		}
 		if($url !== null) {
 			$cell->getHyperlink()->setUrl($url);

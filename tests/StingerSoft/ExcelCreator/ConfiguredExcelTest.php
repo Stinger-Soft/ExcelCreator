@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -18,46 +19,47 @@ abstract class ConfiguredExcelTest extends TestCase {
 
 	abstract public function getImplementation(): string;
 
-	public function testSetters() {
+	public function testSetters(): void {
 		if($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
-			$this->markTestSkipped('Spout doesn\'t support metadata');
+			// Spout doesn't support metadata
+			self::assertTrue(true);
 			return;
 		}
 		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
 
 		$excel->setTitle('TestTitle');
-		$this->assertEquals('TestTitle', $excel->getPhpExcel()->getProperties()->getTitle());
-		$this->assertEquals('TestTitle', $excel->getTitle());
+		self::assertEquals('TestTitle', $excel->getPhpExcel()->getProperties()->getTitle());
+		self::assertEquals('TestTitle', $excel->getTitle());
 
 		$excel->setCompany('TestCompany');
-		$this->assertEquals('TestCompany', $excel->getPhpExcel()->getProperties()->getCompany());
-		$this->assertEquals('TestCompany', $excel->getCompany());
+		self::assertEquals('TestCompany', $excel->getPhpExcel()->getProperties()->getCompany());
+		self::assertEquals('TestCompany', $excel->getCompany());
 
 		$excel->setCreator('TestCreator');
-		$this->assertEquals('TestCreator', $excel->getPhpExcel()->getProperties()->getCreator());
-		$this->assertEquals('TestCreator', $excel->getCreator());
+		self::assertEquals('TestCreator', $excel->getPhpExcel()->getProperties()->getCreator());
+		self::assertEquals('TestCreator', $excel->getCreator());
 	}
 
-	public function testAddSheet() {
+	public function testAddSheet(): void {
 		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
 
-		$this->assertCount(0, $excel->getSheets());
+		self::assertCount(0, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
-			$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
+			self::assertCount(1, $excel->getPhpExcel()->getAllSheets());
 		}
 
 		$sheet = $excel->addSheet('TestSheet');
-		$this->assertCount(1, $excel->getSheets());
+		self::assertCount(1, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
-			$this->assertCount(1, $excel->getPhpExcel()->getAllSheets());
-			$this->assertEquals('TestSheet', $sheet->getSheet()->getTitle());
+			self::assertCount(1, $excel->getPhpExcel()->getAllSheets());
+			self::assertEquals('TestSheet', $sheet->getSheet()->getTitle());
 		}
 
 		$sheet = $excel->addSheet('TestSheet2');
-		$this->assertCount(2, $excel->getSheets());
+		self::assertCount(2, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
-			$this->assertCount(2, $excel->getPhpExcel()->getAllSheets());
-			$this->assertEquals('TestSheet2', $sheet->getSheet()->getTitle());
+			self::assertCount(2, $excel->getPhpExcel()->getAllSheets());
+			self::assertEquals('TestSheet2', $sheet->getSheet()->getTitle());
 		}
 	}
 }

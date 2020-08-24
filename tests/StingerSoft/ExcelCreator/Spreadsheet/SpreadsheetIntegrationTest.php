@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -16,6 +17,7 @@ use StingerSoft\ExcelCreator\ExcelFactory;
 use StingerSoft\ExcelCreator\IntegrationTest;
 
 class SpreadsheetIntegrationTest extends IntegrationTest {
+
 	public function getImplementation(): string {
 		return ExcelFactory::TYPE_PHP_SPREADSHEET;
 	}

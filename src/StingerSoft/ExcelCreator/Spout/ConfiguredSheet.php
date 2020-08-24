@@ -28,6 +28,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
+use StingerSoft\ExcelCreator\DataType\DataTypes;
 use StingerSoft\ExcelCreator\Helper;
 use StingerSoft\PhpCommons\String\Utils;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
@@ -347,7 +348,8 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				$cell = WriterEntityFactory::createCell($value, $style);
 
 				if($binding->getForcedCellType() !== null) {
-					$cell->setType($binding->getForcedCellType());
+					$explicitType = DataTypes::getSpoutCellType($binding->getForcedCellType());
+					$cell->setType($explicitType);
 				}
 
 				$styling = $this->getPropertyFromObject($item, $binding, $binding->getDataStyling(), null, $extraData);
