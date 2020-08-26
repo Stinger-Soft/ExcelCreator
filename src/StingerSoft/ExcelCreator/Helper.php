@@ -74,7 +74,7 @@ trait Helper {
 	 * @return bool|string
 	 */
 	protected function cleanSheetTitle($title) {
-		return \substr(\str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
+		return \mb_substr(\str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
 	}
 
 	/**
