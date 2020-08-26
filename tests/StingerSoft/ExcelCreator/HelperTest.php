@@ -46,6 +46,13 @@ class HelperTest extends TestCase {
 		
 		$this->setSheetTitle($sheet, 'Test:::::');
 		$this->assertEquals('Test_____', $sheet->getTitle());
+
+		$this->setSheetTitle($sheet, 'ワークショップオーダー');
+		$this->assertEquals('ワークショップオーダー', $sheet->getTitle());
+
+		$this->setSheetTitle($sheet, 'ワークショップオーダaーワークショップオーダーaワークショップオーダaーワークショップオーダーa');
+		$this->assertEquals('ワークショップオーダaーワークショップオーダーaワークショップ', $sheet->getTitle());
+
 	}
 
 }
