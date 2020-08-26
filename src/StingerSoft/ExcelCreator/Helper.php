@@ -16,7 +16,7 @@ namespace StingerSoft\ExcelCreator;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use function str_replace;
-use function substr;
+use function mb_substr;
 
 /**
  * Some helper methods
@@ -112,7 +112,7 @@ trait Helper {
 	 * @return bool|string
 	 */
 	protected function cleanSheetTitle(string $title) {
-		return substr(str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
+		return mb_substr(str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
 	}
 
 	protected static function getTemporaryFileNames(): array {
