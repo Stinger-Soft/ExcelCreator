@@ -26,7 +26,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 * Default contructor
 	 */
 	public function __construct(TranslatorInterface $translator = null) {
-		$this->excel = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel(null, $translator);
+		$this->excel = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel($translator);
 	}
 
 	/**
