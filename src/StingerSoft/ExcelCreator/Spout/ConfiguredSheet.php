@@ -179,6 +179,13 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 
 	/**
 	 * @inheritDoc
+	 */
+	public function getSourceSheet() : Sheet {
+		return $this->sheet;
+	}
+
+	/**
+	 * @inheritDoc
 	 * @throws IOException
 	 * @throws InvalidArgumentException
 	 * @throws SpoutException

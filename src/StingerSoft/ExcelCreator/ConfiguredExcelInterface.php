@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace StingerSoft\ExcelCreator;
 
 use Doctrine\Common\Collections\Collection;
+use Exception;
 
 interface ConfiguredExcelInterface {
 
@@ -32,6 +33,14 @@ interface ConfiguredExcelInterface {
 	 * @return ConfiguredSheetInterface[]|Collection
 	 */
 	public function getSheets(): Collection;
+
+	/**
+	 * Set the given sheet to be the active one.
+	 *
+	 * @param ConfiguredSheetInterface $sheet the sheet to make active
+	 * @throws Exception in case the sheet cannot be found or cannot be made active
+	 */
+	public function setActiveSheet(ConfiguredSheetInterface $sheet): void;
 
 	/**
 	 * Returns the title of this excel file

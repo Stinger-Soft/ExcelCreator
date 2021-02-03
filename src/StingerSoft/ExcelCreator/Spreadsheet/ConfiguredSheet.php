@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spreadsheet;
 
+use Box\Spout\Writer\Common\Entity\Sheet;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
@@ -172,6 +173,13 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	public function setData($data): ConfiguredSheetInterface {
 		$this->data = $data;
 		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSourceSheet(): Worksheet {
+		return $this->sheet;
 	}
 
 	/**

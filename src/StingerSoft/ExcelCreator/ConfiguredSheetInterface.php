@@ -74,4 +74,8 @@ interface ConfiguredSheetInterface {
 	 */
 	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface;
 
+	/**
+	 * @return mixed
+	 */
+	public function getSourceSheet();
 }

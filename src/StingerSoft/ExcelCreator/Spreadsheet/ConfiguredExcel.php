@@ -81,6 +81,17 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	/**
 	 * @inheritDoc
 	 */
+	public function setActiveSheet(ConfiguredSheetInterface $sheet): void {
+		$index = $this->sheets->indexOf($sheet);
+		if($index === false) {
+			return;
+		}
+		$this->phpExcel->setActiveSheetIndex($index);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function getTitle(): ?string {
 		return $this->phpExcel->getProperties()->getTitle();
 	}

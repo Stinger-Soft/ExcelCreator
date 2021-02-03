@@ -23,8 +23,11 @@ use Box\Spout\Writer\Exception\InvalidSheetNameException;
 use Box\Spout\Writer\Exception\SheetNotFoundException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Box\Spout\Writer\WriterMultiSheetsAbstract;
+use Box\Spout\Writer\XLSX\Writer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use StingerSoft\ExcelCreator\ConfiguredExcelInterface;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
@@ -83,6 +86,13 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 		$sheet = new ConfiguredSheet($this, $excelSheet, $this->translator);
 		$this->sheets->add($sheet);
 		return $sheet;
+	}
+
+	public function setActiveSheet(ConfiguredSheetInterface $sheet): void {
+		$sourceSheet = $sheet->getSourceSheet();
+		if($sourceSheet instanceof \Box\Spout\Writer\Common\Entity\Sheet) {
+			$this->phpExcel->setCurrentSheet($sourceSheet);
+		}
 	}
 
 	/**
@@ -166,6 +176,16 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 */
 	public function setCompany(?string $company = null): ConfiguredExcelInterface {
 		return $this;
+	}
+
+
+	/**
+	 * Returns the underlying Writer object
+	 *
+	 * @return Writer The underlying Writer object
+	 */
+	public function getPhpExcel(): Writer {
+		return $this->phpExcel;
 	}
 
 	/**

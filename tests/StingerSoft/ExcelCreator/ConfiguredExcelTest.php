@@ -46,20 +46,52 @@ abstract class ConfiguredExcelTest extends TestCase {
 		self::assertCount(0, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
 			self::assertCount(1, $excel->getPhpExcel()->getAllSheets());
+		} elseif($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
+			self::assertCount(1, $excel->getPhpExcel()->getSheets());
 		}
 
 		$sheet = $excel->addSheet('TestSheet');
 		self::assertCount(1, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
 			self::assertCount(1, $excel->getPhpExcel()->getAllSheets());
-			self::assertEquals('TestSheet', $sheet->getSheet()->getTitle());
+			self::assertEquals('TestSheet', $sheet->getSourceSheet()->getTitle());
+		} elseif($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
+			self::assertCount(1, $excel->getPhpExcel()->getSheets());
+			self::assertEquals('TestSheet', $sheet->getSourceSheet()->getName());
 		}
 
 		$sheet = $excel->addSheet('TestSheet2');
 		self::assertCount(2, $excel->getSheets());
 		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
 			self::assertCount(2, $excel->getPhpExcel()->getAllSheets());
-			self::assertEquals('TestSheet2', $sheet->getSheet()->getTitle());
+			self::assertEquals('TestSheet2', $sheet->getSourceSheet()->getTitle());
+		} elseif($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
+			self::assertCount(2, $excel->getPhpExcel()->getSheets());
+			self::assertEquals('TestSheet2', $sheet->getSourceSheet()->getName());
+		}
+	}
+
+	public function testSetActiveSheet() : void {
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+
+		self::assertCount(0, $excel->getSheets());
+
+		$sheet1 = $excel->addSheet('TestSheet');
+		self::assertCount(1, $excel->getSheets());
+
+		$sheet2 = $excel->addSheet('TestSheet2');
+		self::assertCount(2, $excel->getSheets());
+
+		if($this->getImplementation() === ExcelFactory::TYPE_PHP_SPREADSHEET) {
+			// in spreadsheet newly added sheets are NOT marked as active
+			self::assertSame($excel->getPhpExcel()->getActiveSheet(), $sheet1->getSourceSheet());
+			$excel->setActiveSheet($sheet2);
+			self::assertSame($excel->getPhpExcel()->getActiveSheet(), $sheet2->getSourceSheet());
+		} elseif($this->getImplementation() === ExcelFactory::TYPE_SPOUT) {
+			// in spout newly added sheets are marked as active
+			self::assertSame($excel->getPhpExcel()->getCurrentSheet(), $sheet2->getSourceSheet());
+			$excel->setActiveSheet($sheet1);
+			self::assertSame($excel->getPhpExcel()->getCurrentSheet(), $sheet1->getSourceSheet());
 		}
 	}
 }
