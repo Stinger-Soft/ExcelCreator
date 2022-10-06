@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace StingerSoft\ExcelCreator\Utils;
 
 
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
