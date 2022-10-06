@@ -87,14 +87,22 @@ abstract class AbstractExcelImporter {
 		}
 	}
 
-
 	protected function getStringValue(Worksheet $sheet, int $column, int $row): ?string {
 		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
 		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if($resStr === null || $resStr === '-' || trim($resStr) === '') {
+		if($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
 			return null;
 		}
 		return (string)$resStr;
+	}
+
+	protected function getDateValue(Worksheet $sheet, int $column, int $row): ?\DateTimeInterface {
+		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		if($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
+			return null;
+		}
+		return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($resStr);
 	}
 
 	protected function getNumericValue(Worksheet $sheet, int $column, int $row): ?float {
