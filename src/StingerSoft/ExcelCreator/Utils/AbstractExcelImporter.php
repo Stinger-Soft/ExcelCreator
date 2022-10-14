@@ -115,7 +115,7 @@ abstract class AbstractExcelImporter {
 
 	protected function getBoolValue(Worksheet $sheet, int $column, int $row): bool {
 		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if($resStr === null || $resStr === '-' || trim($resStr) === '') {
+		if($resStr === null || $resStr === '-' || $resStr === '0' || $resStr === 0 ||  (is_string($resStr) && trim($resStr) === '')) {
 			return false;
 		}
 		return true;
