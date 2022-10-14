@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -12,28 +13,37 @@
 
 namespace StingerSoft\ExcelCreator;
 
-use Symfony\Component\Translation\TranslatorInterface;
+use Box\Spout\Common\Exception\IOException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExcelFactory {
 
-	const TYPE_SPOUT = 'spout';
+	/**
+	 * @string
+	 */
+	public const TYPE_SPOUT = 'spout';
 
-	const TYPE_PHP_SPREADSHEET = 'spreadsheet';
+	public const TYPE_PHP_SPREADSHEET = 'spreadsheet';
 
 	private function __construct() {
 	}
 
-	public static function createConfiguredExcel($type = self::TYPE_PHP_SPREADSHEET, TranslatorInterface $translator = null) {
-		$configuredExcel = null;
+	/**
+	 * @param string $type
+	 * @param TranslatorInterface|null $translator
+	 * @return ConfiguredExcelInterface
+	 */
+	public static function createConfiguredExcel(string $type = self::TYPE_PHP_SPREADSHEET, ?TranslatorInterface $translator = null): ConfiguredExcelInterface {
 		switch($type) {
 			case self::TYPE_SPOUT:
-				$configuredExcel = new \StingerSoft\ExcelCreator\Spout\ConfiguredExcel($translator);
-				break;
+				try {
+					return new Spout\ConfiguredExcel($translator);
+				} catch(IOException $e) {
+					throw new \RuntimeException('Cannot create instance of Spout ConfiguredExcel', 0, $e);
+				}
 			default:
-				$configuredExcel = new \StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel($translator);
+				return new Spreadsheet\ConfiguredExcel($translator);
 		}
-
-		return $configuredExcel;
 	}
 
 }

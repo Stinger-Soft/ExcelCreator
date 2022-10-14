@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -9,18 +10,26 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace StingerSoft\ExcelCreator\Formatter;
 
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Creates a delegate to translate binding results
  */
 abstract class TranslationFormatter {
 
-	public static function createTranslationFormatter(TranslatorInterface $translator, $domain) {
-		return function ($value) use ($translator, $domain) {
-			if(!$value) return '';
+	/**
+	 * @param TranslatorInterface $translator
+	 * @param $domain
+	 * @return callable
+	 */
+	public static function createTranslationFormatter(TranslatorInterface $translator, $domain): callable {
+		return static function($value) use ($translator, $domain) {
+			if(!$value) {
+				return '';
+			}
 			return $translator->trans($value, array(), $domain);
 		};
 	}

@@ -1,17 +1,20 @@
 <?php
+
 class Person {
 
 	protected $name;
 
 	protected $email;
-	
+
 	protected $address;
-	
+
 	protected $city;
-	
+
 	protected $zipCode;
-	
+
 	protected $phoneNumber;
+
+	protected $birthday;
 
 	public function __construct($name, $email) {
 		$this->name = $name;
@@ -71,5 +74,22 @@ class Person {
 		$this->phoneNumber = $phoneNumber;
 		return $this;
 	}
-	
+
+	/**
+	 * @return mixed
+	 */
+	public function getBirthday() {
+		return $this->birthday;
+	}
+
+	/**
+	 * @param mixed $birthday
+	 * @return Person
+	 */
+	public function setBirthday($birthday) {
+		$this->birthday = $birthday;
+		return $this;
+	}
+
+
 }

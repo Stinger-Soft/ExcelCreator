@@ -1,16 +1,35 @@
 language: php
 
 cache:
-    directories:
-        - $HOME/.composer/cache
+  directories:
+    - $HOME/.composer/cache
 
 matrix:
   include:
     - php: 7.1
-      env: COVERALLS=1
+      env:
+        - COVERALLS=1
+        - MIGRATE_CONFIGURATION=0
 
     - php: 7.2
-      env: COVERALLS=1
+      env:
+        - COVERALLS=1
+        - MIGRATE_CONFIGURATION=0
+
+    - php: 7.3
+      env:
+        - COVERALLS=1
+        - MIGRATE_CONFIGURATION=1
+
+    - php: 7.4
+      env:
+        - COVERALLS=1
+        - MIGRATE_CONFIGURATION=1
+
+#    - php: 8.0
+#      env:
+#        - COVERALLS=1
+#        - MIGRATE_CONFIGURATION=1
 
 before_install:
   - composer self-update
@@ -20,11 +39,12 @@ install:
 
 script:
   - mkdir -p ./build/logs
+  - sh -c "if [ '$MIGRATE_CONFIGURATION' = '1' ]; then ./vendor/bin/phpunit --migrate-configuration; fi"
   - sh -c "if [ '$COVERALLS' = '1' ]; then ./vendor/bin/phpunit --stderr -v --coverage-clover build/logs/clover.xml; fi"
   - sh -c "if [ '$COVERALLS' = '0' ]; then ./vendor/bin/phpunit --stderr -v; fi"
 
 after_script:
-  - sh -c "if [ '$COVERALLS' = '1' ]; then php ./vendor/bin/coveralls -v; fi"
+  - sh -c "if [ '$COVERALLS' = '1' ]; then ./vendor/bin/php-coveralls -v; fi"
 
 notifications:
   email:

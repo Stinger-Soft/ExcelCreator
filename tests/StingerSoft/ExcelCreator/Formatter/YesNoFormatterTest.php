@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -15,11 +16,11 @@ use PHPUnit\Framework\TestCase;
 
 class YesNoFormatterTest extends TestCase {
 
-	public function testCreateTranslationFormatter() {
-		$pirateYesNoformatter = YesNoFormatter::createYesNoFormatter('Arrrr!', 'Avast!');
+	public function testCreateTranslationFormatter(): void {
+		$pirateYesNoFormatter = YesNoFormatter::createYesNoFormatter('Arrrr!', 'Avast!');
 		
-		$this->assertEquals('Arrrr!', $pirateYesNoformatter(true));
-		$this->assertEquals('Avast!', $pirateYesNoformatter(false));
-		$this->assertEquals('Avast!', $pirateYesNoformatter('nonono'));
+		self::assertEquals('Arrrr!', $pirateYesNoFormatter(true));
+		self::assertEquals('Avast!', $pirateYesNoFormatter(false));
+		self::assertEquals('Avast!', $pirateYesNoFormatter('nonono'));
 	}
 }

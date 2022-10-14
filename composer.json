@@ -29,22 +29,22 @@
 	},
 	"license" : "Apache-2.0",
 	"require" : {
-		"php": "^7.1",
-		"box/spout": "~2.7.3",
-		"doctrine/collections" : "~1.2",
-		"phpoffice/phpspreadsheet" : "^1.2.0",
-		"stinger-soft/php-commons" : "~1.0",
-		"symfony/property-access" : "^3.0|^4.0",
-		"symfony/translation" : "^3.0|^4.0"
+		"php": "^7.1||^8.0",
+		"box/spout": "^3.1",
+		"doctrine/collections" : "^1.6",
+		"phpoffice/phpspreadsheet" : "^1.16",
+		"stinger-soft/php-commons" : "^1.0",
+		"symfony/property-access" : "^3.0||^4.0||^5.0||^6.0",
+		"symfony/contracts" : "^1.0||^2.0"
 	},
 	"require-dev" : {
-		"phpunit/phpunit" : "~6.5|~7.3.5",
-		"php-coveralls/php-coveralls" : "~2.1.0"
+		"phpunit/phpunit" : "^7.3.5||^8.0||^9.0",
+		"php-coveralls/php-coveralls" : "^2.1.0"
 	},
 	"extra" : {
 		"branch-alias" : {
-			"dev-master" : "1.4.x-dev",
-			"dev-develop" : "2.0.x-dev"
+			"dev-master" : "2.0.x-dev",
+			"dev-develop" : "3.0.x-dev"
 		}
 	}
 }

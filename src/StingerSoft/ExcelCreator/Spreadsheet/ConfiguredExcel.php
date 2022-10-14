@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the Stinger Excel Creator package.
@@ -13,11 +14,14 @@
 namespace StingerSoft\ExcelCreator\Spreadsheet;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use StingerSoft\ExcelCreator\ConfiguredExcelInterface;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Abstraction class to represent a single excel file
@@ -34,7 +38,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	protected $sheets;
 
 	/**
-	 * The underyling excel file of PHPExcel
+	 * The underlying excel file of PHPExcel
 	 *
 	 * @var Spreadsheet
 	 */
@@ -51,14 +55,10 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	}
 
 	/**
-	 * Adds and returns a new sheet
-	 *
-	 * @param string $title
-	 *            The title of the new sheet
-	 * @return \StingerSoft\ExcelCreator\ConfiguredSheetInterface
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function addSheet($title) {
+	public function addSheet(string $title): ConfiguredSheetInterface {
 		$excelSheet = null;
 		if($this->sheets->isEmpty()) {
 			$excelSheet = $this->phpExcel->getActiveSheet();
@@ -72,75 +72,74 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	}
 
 	/**
-	 * Returns the worksheets of this excel file
-	 *
-	 * @return ConfiguredSheetInterface[]
+	 * @inheritDoc
 	 */
-	public function getSheets() {
+	public function getSheets(): Collection {
 		return $this->sheets;
 	}
 
 	/**
-	 * Returns the title of this excel file
-	 *
-	 * @return string The title of this excel file
+	 * @inheritDoc
 	 */
-	public function getTitle() {
+	public function setActiveSheet(ConfiguredSheetInterface $sheet): void {
+		$index = $this->sheets->indexOf($sheet);
+		if($index === false) {
+			return;
+		}
+		$this->phpExcel->setActiveSheetIndex($index);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getTitle(): ?string {
 		return $this->phpExcel->getProperties()->getTitle();
 	}
 
 	/**
-	 * Sets the title of this excel file
-	 *
-	 * @param string $title
-	 *            The title of this excel file
+	 * @inheritDoc
 	 */
-	public function setTitle($title) {
+	public function setTitle(?string $title = null): ConfiguredExcelInterface {
 		$this->phpExcel->getProperties()->setTitle($title);
+		return $this;
 	}
 
 	/**
-	 * Get the author of this excel file
-	 *
-	 * @return string The author of this excel file
+	 * @inheritDoc
 	 */
-	public function getCreator() {
+	public function getCreator(): ?string {
 		return $this->phpExcel->getProperties()->getCreator();
 	}
 
 	/**
-	 * Sets the author of this excel file
-	 *
-	 * @param string $creator
-	 *            The author of this excel file
+	 * @inheritDoc
 	 */
-	public function setCreator($creator) {
+	public function setCreator(?string $creator = null): ConfiguredExcelInterface {
 		$this->phpExcel->getProperties()->setCreator($creator);
+		return $this;
 	}
 
 	/**
-	 *
-	 * @return string The company this excel file is created by
+	 * @inheritDoc
 	 */
-	public function getCompany() {
+	public function getCompany(): ?string {
 		return $this->phpExcel->getProperties()->getCompany();
 	}
 
 	/**
-	 *
-	 * @param string $company
-	 *            The company this excel file is created by
+	 * @inheritDoc
 	 */
-	public function setCompany($company) {
-		return $this->phpExcel->getProperties()->setCompany($company);
+	public function setCompany(?string $company = null): ConfiguredExcelInterface {
+		$this->phpExcel->getProperties()->setCompany($company);
+		return $this;
 	}
 
 	/**
-	 * Returns the underyling PHPExcel object
+	 * Returns the underlying PHPExcel object
 	 *
-	 * @return Spreadsheet The underyling PHPExcel object
+	 * @return Spreadsheet The underlying PHPExcel object
 	 */
-	public function getPhpExcel() {
+	public function getPhpExcel(): Spreadsheet {
 		return $this->phpExcel;
 	}
 
@@ -148,9 +147,10 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	 * @inheritDoc
 	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
 	 */
-	public function writeToFile($filename) {
-		$objPHPExcelWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->getPhpExcel(), 'Xlsx');
+	public function writeToFile(string $filename): ConfiguredExcelInterface {
+		$objPHPExcelWriter = IOFactory::createWriter($this->getPhpExcel(), 'Xlsx');
 		$objPHPExcelWriter->save($filename);
+		return $this;
 	}
 
 }

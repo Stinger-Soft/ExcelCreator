@@ -12,7 +12,6 @@ $zipBinding = new ColumnBinding();
 $zipBinding->setLabel('Zipcode');
 $zipBinding->setBinding('zipcode');
 $zipBinding->setColumnWidth('auto');
-$zipBinding->setOutline(1);
 $sheet1->addColumnBinding($zipBinding);
 
 //Group results by zip code
