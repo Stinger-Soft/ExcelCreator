@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\CellModifier;
 
-use Box\Spout\Common\Entity\Cell as SpoutCell;
-use Box\Spout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Cell as SpoutCell;
+use OpenSpout\Common\Entity\Style\Style;
 use PhpOffice\PhpSpreadsheet\Cell\Cell as SpreadsheetCell;
 use StingerSoft\ExcelCreator\ColumnBinding;
 

@@ -13,18 +13,15 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spout;
 
-use Box\Spout\Common\Entity\Cell;
-use Box\Spout\Common\Entity\Style\Style;
-use Box\Spout\Common\Exception\InvalidArgumentException;
-use Box\Spout\Common\Exception\IOException;
-use Box\Spout\Common\Exception\SpoutException;
-use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Box\Spout\Writer\Common\Entity\Sheet;
-use Box\Spout\Writer\Exception\SheetNotFoundException;
-use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use OpenSpout\Common\Entity\Cell;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Exception\InvalidArgumentException;
+use OpenSpout\Common\Exception\IOException;
+use OpenSpout\Writer\Common\Entity\Sheet;
+use OpenSpout\Writer\Exception\SheetNotFoundException;
+use OpenSpout\Writer\Exception\WriterNotOpenedException;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use StingerSoft\ExcelCreator\ColumnBinding;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
@@ -139,9 +136,9 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * Default constructor
 	 *
-	 * @param ConfiguredExcel $excel
+	 * @param ConfiguredExcel     $excel
 	 *            The parent excel file
-	 * @param Sheet $sheet
+	 * @param Sheet               $sheet
 	 *            The underlying PHP Excel worksheet
 	 * @param TranslatorInterface $translator
 	 *            Translator to support translation of bindings
@@ -180,7 +177,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function getSourceSheet() : Sheet {
+	public function getSourceSheet(): Sheet {
 		return $this->sheet;
 	}
 
@@ -229,14 +226,13 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @return Style
 	 */
 	protected function getDefaultHeaderStyling($fontColor = null, $bgColor = null): Style {
-		return (new StyleBuilder())
+		return (new Style())
 			->setFontSize($this->defaultHeaderFontSize)
 			->setFontColor($fontColor ?: $this->defaultHeaderFontColor)
 			->setBackgroundColor($bgColor ?: $this->defaultHeaderBackgroundColor)
 			->setFontName($this->defaultFontFamily)
 			->setShouldWrapText()
-			->setFontBold()
-			->build();
+			->setFontBold();
 	}
 
 	/**
@@ -247,7 +243,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @return Style
 	 */
 	protected function getDefaultDataStyling($fontColor = null, $bgColor = null): Style {
-		$builder = new StyleBuilder();
+		$builder = new Style();
 		$builder->setFontSize($this->defaultDataFontSize);
 		if($fontColor || $this->defaultDataFontColor) {
 			$builder->setFontColor($fontColor ?: $this->defaultDataFontColor);
@@ -256,7 +252,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			$builder->setBackgroundColor($bgColor ?: $this->defaultDataBackgroundColor);
 		}
 		$builder->setFontName($this->defaultFontFamily);
-		return $builder->build();
+		return $builder;
 	}
 
 	/**
@@ -280,18 +276,18 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		}
 		$headerRowData = [];
 		for($i = 1; $i < $startColumn; $i++) {
-			$headerRowData[] = WriterEntityFactory::createCell('');
+			$headerRowData[] = Cell::fromValue(null, null);
 		}
 
 		foreach($this->bindings as $binding) {
-			$headerRowData[] = WriterEntityFactory::createCell($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
+			$headerRowData[] = Cell::fromValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())), null);
 		}
 		$this->addRow($headerRowData, $this->getDefaultHeaderStyling());
 
 	}
 
 	/**
-	 * @param Cell[] $data
+	 * @param Cell[]     $data
 	 * @param Style|null $styling
 	 * @throws IOException
 	 * @throws InvalidArgumentException
@@ -336,7 +332,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			}
 			$rowData = [];
 			for($i = 1; $i < $startColumn; $i++) {
-				$rowData[] = WriterEntityFactory::createCell('');
+				$rowData[] = Cell::fromValue('');
 			}
 			foreach($this->bindings as $binding) {
 				$value = $this->getPropertyFromObject($item, $binding, $binding->getBinding(), '', $extraData);
@@ -349,10 +345,10 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				}
 
 				if($value instanceof DateTime) {
-					$value= Date::PHPToExcel($value);
+					$value = Date::PHPToExcel($value);
 				}
 
-				$cell = WriterEntityFactory::createCell($value, $style);
+				$cell = Cell::fromValue($value, $style);
 
 				if($binding->getForcedCellType() !== null) {
 					$explicitType = DataTypes::getSpoutCellType($binding->getForcedCellType());
@@ -386,15 +382,15 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 
 	/**
 	 *
-	 * @param array|object $item
+	 * @param array|object    $item
 	 *            The object to fetch the property from
-	 * @param ColumnBinding $binding
+	 * @param ColumnBinding   $binding
 	 *            The binding configuration for this column
 	 * @param string|callable $path
 	 *            The property or callable to fetch the desired property
-	 * @param string $default
+	 * @param string          $default
 	 *            The default value if no property was fetched
-	 * @param array $extraData
+	 * @param array           $extraData
 	 * @return mixed The value of the requested property
 	 */
 	protected function getPropertyFromObject($item, ColumnBinding $binding, $path, $default = '', array $extraData = array()) {

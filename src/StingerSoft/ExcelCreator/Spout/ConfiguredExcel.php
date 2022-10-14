@@ -13,21 +13,19 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spout;
 
-use Box\Spout\Common\Entity\Style\Style;
-use Box\Spout\Common\Exception\InvalidArgumentException;
-use Box\Spout\Common\Exception\IOException;
-use Box\Spout\Common\Exception\SpoutException;
-use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
-use Box\Spout\Writer\Common\Entity\Sheet;
-use Box\Spout\Writer\Exception\InvalidSheetNameException;
-use Box\Spout\Writer\Exception\SheetNotFoundException;
-use Box\Spout\Writer\Exception\WriterNotOpenedException;
-use Box\Spout\Writer\WriterMultiSheetsAbstract;
-use Box\Spout\Writer\XLSX\Writer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Exception;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Exception\InvalidArgumentException;
+use OpenSpout\Common\Exception\IOException;
+use OpenSpout\Writer\Common\Entity\Sheet;
+use OpenSpout\Writer\Exception\InvalidSheetNameException;
+use OpenSpout\Writer\Exception\SheetNotFoundException;
+use OpenSpout\Writer\Exception\WriterNotOpenedException;
+use OpenSpout\Writer\WriterInterface;
+use OpenSpout\Writer\XLSX\Writer;
+use OpenSpout\Writer\XLSX\Writer as XLSXWriter;
 use StingerSoft\ExcelCreator\ConfiguredExcelInterface;
 use StingerSoft\ExcelCreator\ConfiguredSheetInterface;
 use StingerSoft\ExcelCreator\Helper;
@@ -47,7 +45,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	/**
 	 * The underyling excel file of PHPExcel
 	 *
-	 * @var WriterMultiSheetsAbstract
+	 * @var WriterInterface
 	 */
 	protected $phpExcel;
 
@@ -58,12 +56,13 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 
 	/**
 	 * Default constructor
+	 *
 	 * @param TranslatorInterface|null $translator
 	 * @throws IOException
 	 */
 	public function __construct(TranslatorInterface $translator = null) {
 		$this->tempFile = self::createTemporaryFile('xlsx');
-		$this->phpExcel = WriterEntityFactory::createXLSXWriter();
+		$this->phpExcel = new XLSXWriter();
 		$this->phpExcel->openToFile($this->tempFile);
 		$this->sheets = new ArrayCollection();
 		$this->translator = $translator;
@@ -90,7 +89,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 
 	public function setActiveSheet(ConfiguredSheetInterface $sheet): void {
 		$sourceSheet = $sheet->getSourceSheet();
-		if($sourceSheet instanceof \Box\Spout\Writer\Common\Entity\Sheet) {
+		if($sourceSheet instanceof \OpenSpout\Writer\Common\Entity\Sheet) {
 			$this->phpExcel->setCurrentSheet($sourceSheet);
 		}
 	}
@@ -110,7 +109,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 		} catch(SheetNotFoundException $e) {
 		} catch(WriterNotOpenedException $e) {
 		}
-		$this->phpExcel->addRow(WriterEntityFactory::createRow($rowData));
+		$this->phpExcel->addRow(new Row($rowData));
 	}
 
 	/**
@@ -126,7 +125,7 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 		if($this->phpExcel->getCurrentSheet() !== $sheet) {
 			$this->phpExcel->setCurrentSheet($sheet);
 		}
-		$this->phpExcel->addRow(WriterEntityFactory::createRow($rowData, $style));
+		$this->phpExcel->addRow(new Row($rowData, $style));
 	}
 
 	/**
@@ -177,7 +176,6 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	public function setCompany(?string $company = null): ConfiguredExcelInterface {
 		return $this;
 	}
-
 
 	/**
 	 * Returns the underlying Writer object
