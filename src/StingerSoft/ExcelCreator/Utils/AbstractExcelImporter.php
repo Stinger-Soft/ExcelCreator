@@ -1,4 +1,4 @@
-<?php
+e<?php
 declare(strict_types=1);
 
 /*
@@ -83,7 +83,17 @@ abstract class AbstractExcelImporter {
 
 	protected function checkMapping(array $mapping): void {
 		if(in_array(null, $mapping, true)) {
-			throw new \RuntimeException('Not all necessary columns found in row ' . $this->getHeaderRow() . '! Required columns are: ' . implode(', ', $this->getHeaders()));
+			throw new \RuntimeException(
+				'Not all necessary columns found in row ' . $this->getHeaderRow() . "!\r\n".
+				"Required columns \r\n" .
+				"================= \r\n" .
+				implode(', ', $this->getHeaders())."\r\n\r\n".
+				" Missing columns\r\n" .
+				"================= \r\n" .
+				implode(', ', array_keys(array_filter($mapping, function($value){
+					return $value === null;
+				})))
+			);
 		}
 	}
 
