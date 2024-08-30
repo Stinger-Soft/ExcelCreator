@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spreadsheet;
 
-use Box\Spout\Writer\Common\Entity\Sheet;
+use OpenSpout\Writer\Common\Entity\Sheet;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;

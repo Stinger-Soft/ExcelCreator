@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\DataType;
 
-use Box\Spout\Common\Entity\Cell as SpoutCell;
+use OpenSpout\Common\Entity\Cell as SpoutCell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class DataTypes {

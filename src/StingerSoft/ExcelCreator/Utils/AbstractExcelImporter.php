@@ -37,7 +37,7 @@ abstract class AbstractExcelImporter {
 		$headerMapping = $this->getHeaderMapping($sheet);
 		$this->checkMapping($headerMapping);
 		$highestRow = $this->getHighestDataRow($sheet);
-		for($row = $this->getFirstDataRow(); $row <= $highestRow; $row++) {
+		for ($row = $this->getFirstDataRow(); $row <= $highestRow; $row++) {
 			$this->onRow($sheet, $row, $headerMapping);
 		}
 	}
@@ -50,7 +50,7 @@ abstract class AbstractExcelImporter {
 	 * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
 	 */
 	protected function openExcelFile(string $fileName): Spreadsheet {
-		if(!file_exists($fileName)) {
+		if (!file_exists($fileName)) {
 			throw new \RuntimeException('Cannot find excel file ' . $fileName);
 		}
 		$reader = IOFactory::createReaderForFile($fileName);
@@ -59,13 +59,13 @@ abstract class AbstractExcelImporter {
 	}
 
 	protected function findColumnByName(Worksheet $sheet, string $value, int $headerRow = null): ?int {
-		if($headerRow === null) {
+		if ($headerRow === null) {
 			$headerRow = $this->getHeaderRow();
 		}
 		$highestColumn = Coordinate::columnIndexFromString($sheet->getHighestDataColumn($headerRow));
-		for($column = $this->getFirstDataColumn(); $column <= $highestColumn; $column++) {
+		for ($column = $this->getFirstDataColumn(); $column <= $highestColumn; $column++) {
 			$cell = $sheet->getCellByColumnAndRow($column, $headerRow);
-			if($cell && $cell->getValue() === $value) {
+			if ($cell && $cell->getValue() === $value) {
 				return $column;
 			}
 		}
@@ -75,14 +75,14 @@ abstract class AbstractExcelImporter {
 
 	protected function getHeaderMapping(Worksheet $sheet): array {
 		$result = array_combine($this->getHeaders(), $this->getHeaders());
-		array_walk($result, function(&$item, $key) use ($sheet) {
+		array_walk($result, function (&$item, $key) use ($sheet) {
 			$item = $this->findColumnByName($sheet, $key);
 		});
 		return $result;
 	}
 
 	protected function checkMapping(array $mapping): void {
-		if(in_array(null, $mapping, true)) {
+		if (in_array(null, $mapping, true)) {
 			throw new \RuntimeException('Not all necessary columns found in row ' . $this->getHeaderRow() . '! Required columns are: ' . implode(', ', $this->getHeaders()));
 		}
 	}
@@ -90,7 +90,7 @@ abstract class AbstractExcelImporter {
 	protected function getStringValue(Worksheet $sheet, int $column, int $row): ?string {
 		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
 		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
+		if ($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
 			return null;
 		}
 		return (string)$resStr;
@@ -99,23 +99,25 @@ abstract class AbstractExcelImporter {
 	protected function getDateValue(Worksheet $sheet, int $column, int $row): ?\DateTimeInterface {
 		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
 		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
+		if ($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
 			return null;
 		}
 		return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($resStr);
 	}
 
 	protected function getNumericValue(Worksheet $sheet, int $column, int $row): ?float {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if(is_numeric($resStr)) {
+		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		if (is_numeric($resStr)) {
 			return (float)$resStr;
 		}
 		return null;
 	}
 
 	protected function getBoolValue(Worksheet $sheet, int $column, int $row): bool {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getValue();
-		if($resStr === null || $resStr === '-' || $resStr === '0' || $resStr === 0 ||  (is_string($resStr) && trim($resStr) === '')) {
+		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		if ($resStr === null || $resStr === '-' || $resStr === '0' || $resStr === 0 || (is_string($resStr) && trim($resStr) === '')) {
 			return false;
 		}
 		return true;

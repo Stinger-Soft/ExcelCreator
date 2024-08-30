@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator;
 
-use Box\Spout\Common\Exception\IOException;
+use OpenSpout\Common\Exception\IOException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExcelFactory {
