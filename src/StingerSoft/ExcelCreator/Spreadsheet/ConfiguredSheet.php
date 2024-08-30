@@ -93,16 +93,16 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	/**
 	 * The default font size for the data cells
 	 *
-	 * @var integer
+	 * @var int
 	 */
-	protected $defaultDataFontSize = 8;
+	protected int $defaultDataFontSize = 8;
 
 	/**
 	 * Property accessor to handle property path bindings
 	 *
 	 * @var PropertyAccessor
 	 */
-	protected $accessor;
+	protected PropertyAccessor $accessor;
 
 	/**
 	 * The data bound to this sheet
@@ -110,20 +110,6 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @var array|Traversable
 	 */
 	protected $data;
-
-	/**
-	 * The parent excel file
-	 *
-	 * @var ConfiguredExcel
-	 */
-	protected $excel;
-
-	/**
-	 * The PHP worksheet attached to this object
-	 *
-	 * @var Worksheet
-	 */
-	protected $sheet;
 
 	/**
 	 * Creates some extra data for each data item object
@@ -134,21 +120,19 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 
 	protected $groupByBinding;
 
-	/**
-	 * Default constructor
-	 *
-	 * @param ConfiguredExcel $excel
-	 *            The parent excel file
-	 * @param Worksheet $sheet
-	 *            The underlying PHP Excel worksheet
-	 * @param TranslatorInterface $translator
-	 *            Translator to support translation of bindings
-	 */
-	public function __construct(ConfiguredExcel $excel, Worksheet $sheet, TranslatorInterface $translator = null) {
+    /**
+     * Default constructor
+     *
+     * @param ConfiguredExcel $excel
+     *            The parent excel file
+     * @param Worksheet $sheet
+     *            The underlying PHP Excel worksheet
+     * @param TranslatorInterface|null $translator
+     *            Translator to support translation of bindings
+     */
+	public function __construct(protected ConfiguredExcel $excel, protected Worksheet $sheet, TranslatorInterface $translator = null) {
 		$this->bindings = new ArrayCollection();
 		$this->accessor = PropertyAccess::createPropertyAccessorBuilder()->disableExceptionOnInvalidIndex()->getPropertyAccessor();
-		$this->excel = $excel;
-		$this->sheet = $sheet;
 		$this->translator = $translator;
 	}
 
@@ -237,7 +221,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	protected function renderHeaderRow($startColumn = 1, $headerRow = 1): void {
 		$this->sheet->getStyle(Coordinate::stringFromColumnIndex($startColumn) . $headerRow . ':' . Coordinate::stringFromColumnIndex($startColumn + $this->bindings->count() - 1) . $headerRow)->applyFromArray($this->getDefaultHeaderStyling());
 		foreach($this->bindings as $binding) {
-			$cell = $this->sheet->getCellByColumnAndRow($startColumn, $headerRow);
+			$cell = $this->sheet->getCell([$startColumn, $headerRow]);
 			if($cell !== null) {
 				$cell->setValue($this->decodeHtmlEntity($this->translate($binding->getLabel(), $binding->getLabelTranslationDomain())));
 				if($binding->getOutline()) {
@@ -264,14 +248,14 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		$row = $headerRow + 1;
 		$lastGroupingValue = null;
 		foreach($this->data as $item) {
-			$this->sheet->getStyleByColumnAndRow($startColumn, $row, $startColumn + count($this->bindings) - 1, $row)->applyFromArray($this->getDefaultDataStyling($this->defaultDataFontColor, $this->defaultDataBackgroundColor));
+			$this->sheet->getStyle([$startColumn, $row, $startColumn + count($this->bindings) - 1, $row])->applyFromArray($this->getDefaultDataStyling($this->defaultDataFontColor, $this->defaultDataBackgroundColor));
 			$extraData = array();
 			if($this->extraData && is_callable($this->extraData)) {
 				$extraData = call_user_func($this->extraData, $item);
 			}
 			$column = $startColumn;
 			foreach($this->bindings as $binding) {
-				$cell = $this->sheet->getCellByColumnAndRow($column, $row);
+				$cell = $this->sheet->getCell([$column, $row]);
 				if($cell !== null) {
 					$value = $this->renderDataCell($cell, $item, $binding, $extraData);
 					if($this->groupByBinding === $binding) {
@@ -407,13 +391,13 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		//
 		$this->sheet->setShowSummaryBelow(false);
 		$this->sheet->setShowSummaryRight(false);
-		$this->sheet->freezePaneByColumnAndRow($startColumn, $headerRow + 1);
+		$this->sheet->freezePane([$startColumn, $headerRow + 1]);
 
 		foreach($this->bindings as $columnIndex => $binding) {
 			//PHPExcel -> PHPSpreadsheet = +1
 			$columnIndex++;
 			if($binding->getWrapText()) {
-				$this->sheet->getStyleByColumnAndRow($columnIndex, $headerRow + 1, $columnIndex, $lastRow)->getAlignment()->setWrapText(true);
+				$this->sheet->getStyle([$columnIndex, $headerRow + 1, $columnIndex, $lastRow])->getAlignment()->setWrapText(true);
 			}
 			if($binding->getColumnWidth()) {
 				if($binding->getColumnWidth() === 'auto') {

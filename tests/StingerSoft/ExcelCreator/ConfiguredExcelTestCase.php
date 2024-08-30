@@ -15,7 +15,7 @@ namespace StingerSoft\ExcelCreator;
 
 use PHPUnit\Framework\TestCase;
 
-abstract class ConfiguredExcelTest extends TestCase {
+abstract class ConfiguredExcelTestCase extends TestCase {
 
 	abstract public function getImplementation(): string;
 

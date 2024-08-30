@@ -12,15 +12,19 @@
 
 namespace StingerSoft\ExcelCreator\Formatter;
 
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TranslationFormatterTest extends TestCase {
 
-	public function testCreateTranslationFormatter(): void {
+    /**
+     * @throws Exception
+     */
+    public function testCreateTranslationFormatter(): void {
 		/** @var TranslatorInterface|MockObject $translator */
-		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(['trans'])->getMockForAbstractClass();
+		$translator = $this->createMock(TranslatorInterface::class);
 		$translator->method('trans')->willReturn('translated');
 
 		$formatter = TranslationFormatter::createTranslationFormatter($translator, 'test');

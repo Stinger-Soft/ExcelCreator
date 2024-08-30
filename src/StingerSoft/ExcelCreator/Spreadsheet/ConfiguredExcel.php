@@ -33,16 +33,16 @@ class ConfiguredExcel implements ConfiguredExcelInterface {
 	/**
 	 * The sheets of this excel file
 	 *
-	 * @var ArrayCollection|ConfiguredSheetInterface[]
+	 * @var Collection<int, ConfiguredSheetInterface>
 	 */
-	protected $sheets;
+	protected Collection $sheets;
 
 	/**
 	 * The underlying excel file of PHPExcel
 	 *
 	 * @var Spreadsheet
 	 */
-	protected $phpExcel;
+	protected Spreadsheet $phpExcel;
 
 	/**
 	 * Default constructor

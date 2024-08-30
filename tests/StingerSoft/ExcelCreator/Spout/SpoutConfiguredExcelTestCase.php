@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spout;
 
-use StingerSoft\ExcelCreator\ConfiguredSheetTest;
+use StingerSoft\ExcelCreator\ConfiguredExcelTestCase;
 use StingerSoft\ExcelCreator\ExcelFactory;
 
-class SpoutConfiguredSheetTest extends ConfiguredSheetTest {
+class SpoutConfiguredExcelTestCase extends ConfiguredExcelTestCase {
 
 	public function getImplementation(): string {
 		return ExcelFactory::TYPE_SPOUT;
 	}
-
 }

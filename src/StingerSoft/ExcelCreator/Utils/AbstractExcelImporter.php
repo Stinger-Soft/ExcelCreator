@@ -64,7 +64,7 @@ abstract class AbstractExcelImporter {
 		}
 		$highestColumn = Coordinate::columnIndexFromString($sheet->getHighestDataColumn($headerRow));
 		for ($column = $this->getFirstDataColumn(); $column <= $highestColumn; $column++) {
-			$cell = $sheet->getCellByColumnAndRow($column, $headerRow);
+			$cell = $sheet->getCell([$column, $headerRow]);
 			if ($cell && $cell->getValue() === $value) {
 				return $column;
 			}
@@ -88,8 +88,8 @@ abstract class AbstractExcelImporter {
 	}
 
 	protected function getStringValue(Worksheet $sheet, int $column, int $row): ?string {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
-		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		$resStr = $sheet->getCell([$column, $row])->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCell([$column, $row])->getValue();
 		if ($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
 			return null;
 		}
@@ -97,8 +97,8 @@ abstract class AbstractExcelImporter {
 	}
 
 	protected function getDateValue(Worksheet $sheet, int $column, int $row): ?\DateTimeInterface {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
-		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		$resStr =$sheet->getCell([$column, $row])->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCell([$column, $row])->getValue();
 		if ($resStr === null || $resStr === '-' || (is_string($resStr) && trim($resStr) === '')) {
 			return null;
 		}
@@ -106,8 +106,8 @@ abstract class AbstractExcelImporter {
 	}
 
 	protected function getNumericValue(Worksheet $sheet, int $column, int $row): ?float {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
-		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		$resStr = $sheet->getCell([$column, $row])->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCell([$column, $row])->getValue();
 		if (is_numeric($resStr)) {
 			return (float)$resStr;
 		}
@@ -115,8 +115,8 @@ abstract class AbstractExcelImporter {
 	}
 
 	protected function getBoolValue(Worksheet $sheet, int $column, int $row): bool {
-		$resStr = $sheet->getCellByColumnAndRow($column, $row)->getOldCalculatedValue();
-		$resStr = $resStr ?? $sheet->getCellByColumnAndRow($column, $row)->getValue();
+		$resStr = $sheet->getCell([$column, $row])->getOldCalculatedValue();
+		$resStr = $resStr ?? $sheet->getCell([$column, $row])->getValue();
 		if ($resStr === null || $resStr === '-' || $resStr === '0' || $resStr === 0 || (is_string($resStr) && trim($resStr) === '')) {
 			return false;
 		}

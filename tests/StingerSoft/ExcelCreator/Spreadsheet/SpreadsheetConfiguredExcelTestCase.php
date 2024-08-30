@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator\Spreadsheet;
 
-use StingerSoft\ExcelCreator\ConfiguredExcelTest;
+use StingerSoft\ExcelCreator\ConfiguredExcelTestCase;
 use StingerSoft\ExcelCreator\ExcelFactory;
 
-class SpreadsheetConfiguredExcelTest extends ConfiguredExcelTest {
+class SpreadsheetConfiguredExcelTestCase extends ConfiguredExcelTestCase {
 
 	public function getImplementation(): string {
 		return ExcelFactory::TYPE_PHP_SPREADSHEET;

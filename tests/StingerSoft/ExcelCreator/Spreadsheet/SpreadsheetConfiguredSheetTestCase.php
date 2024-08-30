@@ -11,14 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace StingerSoft\ExcelCreator\Spout;
+namespace StingerSoft\ExcelCreator\Spreadsheet;
 
+use StingerSoft\ExcelCreator\ConfiguredSheetTestCase;
 use StingerSoft\ExcelCreator\ExcelFactory;
-use StingerSoft\ExcelCreator\IntegrationTest;
 
-class SpoutIntegrationTest extends IntegrationTest {
+class SpreadsheetConfiguredSheetTestCase extends ConfiguredSheetTestCase {
 
 	public function getImplementation(): string {
-		return ExcelFactory::TYPE_SPOUT;
+		return ExcelFactory::TYPE_PHP_SPREADSHEET;
 	}
 }

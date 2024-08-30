@@ -24,13 +24,13 @@ use function mb_substr;
 trait Helper {
 
 	/** @var string[]|null */
-	protected static $temporaryFileNames;
+	protected static array|null $temporaryFileNames = null;
 
 	/**
 	 *
 	 * @var TranslatorInterface|null
 	 */
-	protected $translator;
+	protected TranslatorInterface|null $translator = null;
 
 	/**
 	 *
@@ -41,7 +41,7 @@ trait Helper {
 	 * @param mixed       $content
 	 * @return string the filename of the temporary file
 	 */
-	protected static function createTemporaryFile(?string $extension = null, string $prefix = 'stinger_', $content = null): string {
+	protected static function createTemporaryFile(?string $extension = null, string $prefix = 'stinger_', mixed $content = null): string {
 		$filename = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . uniqid($prefix, true);
 		if(null !== $extension) {
 			$filename .= '.' . $extension;
@@ -87,7 +87,7 @@ trait Helper {
 	 * @param string|bool|null $domain
 	 * @return string
 	 */
-	protected function translate(string $key, $domain = null): string {
+	protected function translate(string $key, string|bool|null $domain = null): string {
 		if($domain === false || $this->getTranslator() === null) {
 			return $key;
 		}
@@ -108,10 +108,10 @@ trait Helper {
 	}
 
 	/**
-	 * @param $title
-	 * @return bool|string
+	 * @param string $title
+	 * @return string
 	 */
-	protected function cleanSheetTitle(string $title) {
+	protected function cleanSheetTitle(string $title): string {
 		return mb_substr(str_replace(Worksheet::getInvalidCharacters(), '_', $title), 0, 31);
 	}
 

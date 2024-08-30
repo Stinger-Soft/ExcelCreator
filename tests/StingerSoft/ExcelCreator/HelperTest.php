@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace StingerSoft\ExcelCreator;
 
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use StingerSoft\ExcelCreator\Spreadsheet\ConfiguredExcel;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -26,10 +27,13 @@ class HelperTest extends TestCase {
 		self::assertEquals('Laphroaig', $this->decodeHtmlEntity('Laphroaig'));
 	}
 
-	public function testTranslate(): void {
+    /**
+     * @throws Exception
+     */
+    public function testTranslate(): void {
 		self::assertEquals('Laphroaig', $this->translate('Laphroaig', false));
 
-		$translator = $this->getMockBuilder(TranslatorInterface::class)->setMethods(['trans'])->getMockForAbstractClass();
+		$translator = $this->createMock(TranslatorInterface::class);
 		$translator->expects(self::exactly(2))->method('trans')->willReturn('translated');
 		$this->translator = $translator;
 
@@ -45,7 +49,10 @@ class HelperTest extends TestCase {
 		self::assertEmpty(self::getTemporaryFileNames());
 	}
 
-	public function testSetSheetTitle(): void {
+    /**
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function testSetSheetTitle(): void {
 		$excel = new ConfiguredExcel();
 		$sheet = $excel->addSheet('test')->getSheet();
 
