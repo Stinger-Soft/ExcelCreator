@@ -75,6 +75,15 @@ interface ConfiguredSheetInterface {
 	public function setGroupByBinding(?ColumnBinding $groupByBinding = null): ConfiguredSheetInterface;
 
 	/**
+	 * Enables or disables striped (alternating) background colors for the group header cells, making adjacent groups
+	 * easier to tell apart.
+	 *
+	 * @param bool $striped
+	 * @return ConfiguredSheetInterface
+	 */
+	public function setStripedGroupHeaders(bool $striped = true): ConfiguredSheetInterface;
+
+	/**
 	 * @return mixed
 	 */
 	public function getSourceSheet();

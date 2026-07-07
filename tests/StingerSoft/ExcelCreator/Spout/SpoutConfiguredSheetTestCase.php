@@ -68,6 +68,24 @@ class SpoutConfiguredSheetTestCase extends ConfiguredSheetTestCase {
 		self::assertSame('Col B', $this->plainValue($worksheet, 'B1'));
 	}
 
+	public function testStripedGroupHeadersUseAlternatingBackground(): void {
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+		$sheet = $excel->addSheet('TestSheet');
+		$sheet->setData($this->getArrayData(3));
+
+		$sheet->addColumnBinding((new ColumnBinding('Col A', '[0]'))->setGroupId('g1')->setGroupLabel('Group One'));
+		$sheet->addColumnBinding((new ColumnBinding('Col B', '[1]'))->setGroupId('g2')->setGroupLabel('Group Two'));
+		$sheet->setStripedGroupHeaders(true);
+		$sheet->applyData();
+
+		$worksheet = $this->writeAndReload($excel);
+		$first = $worksheet->getStyle('A1')->getFill()->getStartColor()->getRGB();
+		$second = $worksheet->getStyle('B1')->getFill()->getStartColor()->getRGB();
+		// The second group's header cell is striped, so the two adjacent group headers differ.
+		self::assertNotSame($first, $second);
+		self::assertSame('A8BCD4', $second);
+	}
+
 	/**
 	 * Values written by OpenSpout are read back by PhpSpreadsheet as RichText objects; normalise them to plain text.
 	 */

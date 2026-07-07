@@ -67,4 +67,40 @@ class SpreadsheetConfiguredSheetTestCase extends ConfiguredSheetTestCase {
 		self::assertSame('Col B', $worksheet->getCell('B1')->getValue());
 		self::assertCount(0, $worksheet->getMergeCells());
 	}
+
+	public function testStripedGroupHeadersUseAlternatingBackground(): void {
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+		$sheet = $excel->addSheet('TestSheet');
+		$sheet->setData($this->getArrayData(3));
+
+		$sheet->addColumnBinding((new ColumnBinding('Col A', '[0]'))->setGroupId('g1')->setGroupLabel('Group One'));
+		$sheet->addColumnBinding((new ColumnBinding('Col B', '[1]'))->setGroupId('g2')->setGroupLabel('Group Two'));
+		$sheet->setStripedGroupHeaders(true);
+		$sheet->applyData();
+
+		$worksheet = $sheet->getSourceSheet();
+		$first = $worksheet->getStyle('A1')->getFill()->getStartColor()->getRGB();
+		$second = $worksheet->getStyle('B1')->getFill()->getStartColor()->getRGB();
+		// Adjacent groups alternate: the first keeps the default header colour, the second is striped.
+		self::assertSame('B8CCE4', $first);
+		self::assertSame('A8BCD4', $second);
+		self::assertNotSame($first, $second);
+	}
+
+	public function testGroupHeadersNotStripedByDefault(): void {
+		$excel = ExcelFactory::createConfiguredExcel($this->getImplementation());
+		$sheet = $excel->addSheet('TestSheet');
+		$sheet->setData($this->getArrayData(3));
+
+		$sheet->addColumnBinding((new ColumnBinding('Col A', '[0]'))->setGroupId('g1')->setGroupLabel('Group One'));
+		$sheet->addColumnBinding((new ColumnBinding('Col B', '[1]'))->setGroupId('g2')->setGroupLabel('Group Two'));
+		$sheet->applyData();
+
+		$worksheet = $sheet->getSourceSheet();
+		$first = $worksheet->getStyle('A1')->getFill()->getStartColor()->getRGB();
+		$second = $worksheet->getStyle('B1')->getFill()->getStartColor()->getRGB();
+		// Striping is opt-in, so both group headers share the default background.
+		self::assertSame('B8CCE4', $first);
+		self::assertSame('B8CCE4', $second);
+	}
 }

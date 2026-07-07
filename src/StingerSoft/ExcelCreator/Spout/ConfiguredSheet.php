@@ -55,6 +55,21 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	protected $defaultHeaderBackgroundColor = 'B8CCE4';
 
 	/**
+	 * Whether the group header cells are rendered in alternating (striped) background colors to visually separate
+	 * adjacent groups.
+	 *
+	 * @var bool
+	 */
+	protected bool $stripedGroupHeaders = false;
+
+	/**
+	 * The background color used for every other group header cell when striping is enabled.
+	 *
+	 * @var string
+	 */
+	protected $groupHeaderStripeColor = 'A8BCD4';
+
+	/**
 	 * The default font color for the table headers
 	 *
 	 * @var string
@@ -239,6 +254,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		}
 
 		$previousKey = null;
+		$groupIndex = -1;
 		foreach($this->bindings as $binding) {
 			$groupLabel = $binding->getGroupLabel();
 			if($groupLabel === null || $groupLabel === '') {
@@ -251,11 +267,22 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 				// Same group as the previous column - left blank because cells cannot be merged.
 				$rowData[] = Cell::fromValue(null, null);
 			} else {
-				$rowData[] = Cell::fromValue($this->decodeHtmlEntity($this->translate($groupLabel, $binding->getGroupLabelTranslationDomain())), null);
+				$groupIndex++;
+				// Stripe every other group so adjacent groups are visually distinguishable.
+				$cellStyle = ($this->stripedGroupHeaders && ($groupIndex % 2 === 1)) ? $this->getDefaultHeaderStyling(null, $this->groupHeaderStripeColor) : null;
+				$rowData[] = Cell::fromValue($this->decodeHtmlEntity($this->translate($groupLabel, $binding->getGroupLabelTranslationDomain())), $cellStyle);
 			}
 			$previousKey = $groupKey;
 		}
 		$this->addRow($rowData, $this->getDefaultHeaderStyling());
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setStripedGroupHeaders(bool $striped = true): ConfiguredSheetInterface {
+		$this->stripedGroupHeaders = $striped;
+		return $this;
 	}
 
 	/**
