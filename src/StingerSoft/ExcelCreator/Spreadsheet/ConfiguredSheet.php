@@ -187,10 +187,90 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @throws Exception
 	 */
 	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface {
+		if($this->hasGroupHeaders()) {
+			$this->renderGroupHeaderRow($startColumn, $headerRow);
+			$headerRow++;
+		}
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow);
 		$this->applyTableStyling($startColumn, $headerRow);
 		return $this;
+	}
+
+	/**
+	 * Returns true if at least one binding declares a group label and therefore a group header row has to be rendered.
+	 *
+	 * @return bool
+	 */
+	protected function hasGroupHeaders(): bool {
+		foreach($this->bindings as $binding) {
+			if($binding->getGroupLabel() !== null && $binding->getGroupLabel() !== '') {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Renders the group header row above the column header row. Consecutive bindings sharing the same group (by group
+	 * id, or by group label if no id is set) are merged into a single, horizontally centered header cell. Columns
+	 * without a group are merged vertically with the column header cell directly below them so their label spans both
+	 * rows.
+	 *
+	 * @param int $startColumn
+	 *            The column to start rendering
+	 * @param int $groupRow
+	 *            The row the group header is rendered in (the column header is rendered in $groupRow + 1)
+	 * @throws Exception
+	 */
+	protected function renderGroupHeaderRow(int $startColumn, int $groupRow): void {
+		$bindings = $this->bindings->getValues();
+		$count = count($bindings);
+		$column = $startColumn;
+		$index = 0;
+		while($index < $count) {
+			$binding = $bindings[$index];
+			$groupLabel = $binding->getGroupLabel();
+			if($groupLabel === null || $groupLabel === '') {
+				// Ungrouped column: let the column header span the group row and the header row.
+				$range = Coordinate::stringFromColumnIndex($column) . $groupRow . ':' . Coordinate::stringFromColumnIndex($column) . ($groupRow + 1);
+				$this->sheet->getStyle($range)->applyFromArray($this->getDefaultHeaderStyling());
+				$this->sheet->mergeCells($range);
+				$column++;
+				$index++;
+				continue;
+			}
+
+			// Grouped column: collect the run of consecutive bindings belonging to the same group.
+			$groupKey = $binding->getGroupId() ?? $groupLabel;
+			$groupDomain = $binding->getGroupLabelTranslationDomain();
+			$startGroupColumn = $column;
+			while($index < $count) {
+				$next = $bindings[$index];
+				$nextLabel = $next->getGroupLabel();
+				if($nextLabel === null || $nextLabel === '') {
+					break;
+				}
+				$nextKey = $next->getGroupId() ?? $nextLabel;
+				if($nextKey !== $groupKey || $next->getGroupLabelTranslationDomain() !== $groupDomain) {
+					break;
+				}
+				$index++;
+				$column++;
+			}
+			$endGroupColumn = $column - 1;
+
+			$range = Coordinate::stringFromColumnIndex($startGroupColumn) . $groupRow . ':' . Coordinate::stringFromColumnIndex($endGroupColumn) . $groupRow;
+			$this->sheet->getStyle($range)->applyFromArray($this->getDefaultHeaderStyling());
+			$this->sheet->getStyle($range)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+			if($endGroupColumn > $startGroupColumn) {
+				$this->sheet->mergeCells($range);
+			}
+			$cell = $this->sheet->getCellByColumnAndRow($startGroupColumn, $groupRow);
+			if($cell !== null) {
+				$cell->setValue($this->decodeHtmlEntity($this->translate($groupLabel, $groupDomain)));
+			}
+		}
 	}
 
 	/**

@@ -120,6 +120,25 @@ class ColumnBinding {
 	protected $forcedCellType;
 
 	/**
+	 * @var string|null Identity of the column group this column belongs to. Consecutive columns sharing the same
+	 *                  group id (or, if no id is given, the same group label) are merged under a single group
+	 *                  header cell. If <code>null</code> the column is not part of any group.
+	 */
+	protected $groupId;
+
+	/**
+	 * @var string|null The label of the group header rendered above the column header. If <code>null</code> no group
+	 *                  header is rendered for this column.
+	 */
+	protected $groupLabel;
+
+	/**
+	 * @var string|bool|null The translation domain to translate the given group label. If set to false no translation
+	 *                       will be applied.
+	 */
+	protected $groupLabelTranslationDomain = false;
+
+	/**
 	 * Default constructor
 	 *
 	 * @param string|null          $label
@@ -193,6 +212,70 @@ class ColumnBinding {
 	 */
 	public function setLabelTranslationDomain($labelTranslationDomain = null): self {
 		$this->labelTranslationDomain = $labelTranslationDomain;
+		return $this;
+	}
+
+	/**
+	 * Returns the identity of the column group this column belongs to.
+	 *
+	 * @return string|null The group id or <code>null</code> if the column is not grouped.
+	 */
+	public function getGroupId(): ?string {
+		return $this->groupId;
+	}
+
+	/**
+	 * Sets the identity of the column group this column belongs to. Consecutive columns sharing the same group id
+	 * (or, if no id is given, the same group label) are merged under a single group header cell.
+	 *
+	 * @param string|null $groupId
+	 * @return ColumnBinding
+	 */
+	public function setGroupId(?string $groupId): self {
+		$this->groupId = $groupId;
+		return $this;
+	}
+
+	/**
+	 * Returns the label of the group header rendered above the column header.
+	 *
+	 * @return string|null The group header label or <code>null</code> if the column is not grouped.
+	 */
+	public function getGroupLabel(): ?string {
+		return $this->groupLabel;
+	}
+
+	/**
+	 * Sets the label of the group header rendered above the column header. Setting a group label on at least one
+	 * binding causes an additional group header row to be rendered above the column header row.
+	 *
+	 * @param string|null $groupLabel
+	 * @return ColumnBinding
+	 */
+	public function setGroupLabel(?string $groupLabel): self {
+		$this->groupLabel = $groupLabel;
+		return $this;
+	}
+
+	/**
+	 * Returns the translation domain to translate the given group label.
+	 * If set to false no translation will be applied.
+	 *
+	 * @return string|bool|null
+	 */
+	public function getGroupLabelTranslationDomain() {
+		return $this->groupLabelTranslationDomain;
+	}
+
+	/**
+	 * Sets the translation domain to translate the given group label.
+	 * If set to false no translation will be applied.
+	 *
+	 * @param string|bool|null $groupLabelTranslationDomain
+	 * @return ColumnBinding
+	 */
+	public function setGroupLabelTranslationDomain($groupLabelTranslationDomain = null): self {
+		$this->groupLabelTranslationDomain = $groupLabelTranslationDomain;
 		return $this;
 	}
 
