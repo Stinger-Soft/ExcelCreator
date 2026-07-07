@@ -20,3 +20,5 @@
 /.idea
 /.buildpath
 /composer.lock
+
+.phpunit.cache/

@@ -190,9 +190,72 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	 * @throws WriterNotOpenedException
 	 */
 	public function applyData(int $startColumn = 1, int $headerRow = 1): ConfiguredSheetInterface {
+		if($this->hasGroupHeaders()) {
+			$this->renderGroupHeaderRow($startColumn, $headerRow);
+			$headerRow++;
+		}
 		$this->renderHeaderRow($startColumn, $headerRow);
 		$this->renderDataRows($startColumn, $headerRow + 1);
 		return $this;
+	}
+
+	/**
+	 * Returns true if at least one binding declares a group label and therefore a group header row has to be rendered.
+	 *
+	 * @return bool
+	 */
+	protected function hasGroupHeaders(): bool {
+		foreach($this->bindings as $binding) {
+			if($binding->getGroupLabel() !== null && $binding->getGroupLabel() !== '') {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Renders the group header row above the column header row.
+	 *
+	 * Note: OpenSpout is a streaming writer and does not support merged cells, so - unlike the PhpSpreadsheet
+	 * backend - the group label is only written into the first column of each group and the remaining columns of the
+	 * group are left blank. There is no horizontal merge and no vertical merge for ungrouped columns.
+	 *
+	 * @param int $startColumn
+	 *            The column to start rendering
+	 * @param int $headerRow
+	 *            The row the group header is rendered in (the column header is rendered in $headerRow + 1)
+	 * @throws IOException
+	 * @throws InvalidArgumentException
+	 * @throws SheetNotFoundException
+	 * @throws WriterNotOpenedException
+	 */
+	protected function renderGroupHeaderRow($startColumn = 1, $headerRow = 1): void {
+		for($i = $this->currentRow; $i < $headerRow; $i++) {
+			$this->addRow([]);
+		}
+		$rowData = [];
+		for($i = 1; $i < $startColumn; $i++) {
+			$rowData[] = Cell::fromValue(null, null);
+		}
+
+		$previousKey = null;
+		foreach($this->bindings as $binding) {
+			$groupLabel = $binding->getGroupLabel();
+			if($groupLabel === null || $groupLabel === '') {
+				$rowData[] = Cell::fromValue(null, null);
+				$previousKey = null;
+				continue;
+			}
+			$groupKey = ($binding->getGroupId() ?? $groupLabel) . "\0" . var_export($binding->getGroupLabelTranslationDomain(), true);
+			if($groupKey === $previousKey) {
+				// Same group as the previous column - left blank because cells cannot be merged.
+				$rowData[] = Cell::fromValue(null, null);
+			} else {
+				$rowData[] = Cell::fromValue($this->decodeHtmlEntity($this->translate($groupLabel, $binding->getGroupLabelTranslationDomain())), null);
+			}
+			$previousKey = $groupKey;
+		}
+		$this->addRow($rowData, $this->getDefaultHeaderStyling());
 	}
 
 	/**
