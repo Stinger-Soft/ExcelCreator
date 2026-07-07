@@ -63,6 +63,21 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 	protected $defaultHeaderBackgroundColor = 'B8CCE4';
 
 	/**
+	 * Whether the group header cells are rendered in alternating (striped) background colors to visually separate
+	 * adjacent groups.
+	 *
+	 * @var bool
+	 */
+	protected bool $stripedGroupHeaders = false;
+
+	/**
+	 * The background color used for every other group header cell when striping is enabled.
+	 *
+	 * @var string
+	 */
+	protected $groupHeaderStripeColor = 'A8BCD4';
+
+	/**
 	 * The default font color for the table headers
 	 *
 	 * @var string
@@ -228,6 +243,7 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 		$count = count($bindings);
 		$column = $startColumn;
 		$index = 0;
+		$groupIndex = 0;
 		while($index < $count) {
 			$binding = $bindings[$index];
 			$groupLabel = $binding->getGroupLabel();
@@ -260,8 +276,10 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			}
 			$endGroupColumn = $column - 1;
 
+			// Stripe every other group so adjacent groups are visually distinguishable.
+			$backgroundColor = ($this->stripedGroupHeaders && ($groupIndex % 2 === 1)) ? $this->groupHeaderStripeColor : null;
 			$range = Coordinate::stringFromColumnIndex($startGroupColumn) . $groupRow . ':' . Coordinate::stringFromColumnIndex($endGroupColumn) . $groupRow;
-			$this->sheet->getStyle($range)->applyFromArray($this->getDefaultHeaderStyling());
+			$this->sheet->getStyle($range)->applyFromArray($this->getDefaultHeaderStyling(null, $backgroundColor));
 			$this->sheet->getStyle($range)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 			if($endGroupColumn > $startGroupColumn) {
 				$this->sheet->mergeCells($range);
@@ -270,7 +288,16 @@ class ConfiguredSheet implements ConfiguredSheetInterface {
 			if($cell !== null) {
 				$cell->setValue($this->decodeHtmlEntity($this->translate($groupLabel, $groupDomain)));
 			}
+			$groupIndex++;
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setStripedGroupHeaders(bool $striped = true): ConfiguredSheetInterface {
+		$this->stripedGroupHeaders = $striped;
+		return $this;
 	}
 
 	/**
